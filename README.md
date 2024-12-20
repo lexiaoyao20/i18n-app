@@ -2,7 +2,7 @@
 
 ## 快速安装
 
-使用以下命令安装 i18n-app：
+使用 curl 安装:
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://gitlab.followme-internal.com/bos-std/app/framework/i18n-app/-/raw/main/install.sh)"

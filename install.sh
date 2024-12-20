@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 set -e
@@ -8,9 +7,7 @@ BINARY_NAME="i18n-app"
 
 # 检测系统类型和架构
 detect_platform() {
-    local OS
-    local ARCH
-    OS=$(uname -s | tr '[:lower:]' '[:lower:]')
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     ARCH=$(uname -m)
     
     case "$ARCH" in
@@ -20,19 +17,17 @@ detect_platform() {
     esac
     
     case "$OS" in
-        linux) OS="linux" ;;
-        darwin) OS="darwin" ;;
+        linux) echo "linux-${ARCH}" ;;
+        darwin) echo "darwin-${ARCH}" ;;
         *) echo "不支持的操作系统: $OS"; exit 1 ;;
     esac
-    
-    echo "${OS}-${ARCH}"
 }
 
 # 获取最新发布版本
 get_latest_version() {
-    curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | \
-    grep '"tag_name":' | \
-    sed -E 's/.*"([^"]+)".*/\1/'
+    curl --silent "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | 
+    grep '"tag_name":' | 
+    cut -d'"' -f4
 }
 
 main() {
@@ -44,7 +39,7 @@ main() {
     if [ -z "$VERSION" ]; then
         echo "无法获取最新版本"
         exit 1
-    }
+    fi
     
     DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/${BINARY_NAME}-${PLATFORM}"
     
@@ -52,7 +47,7 @@ main() {
     
     # 创建临时目录
     TMP_DIR=$(mktemp -d)
-    curl -sL "$DOWNLOAD_URL" -o "${TMP_DIR}/${BINARY_NAME}"
+    curl -L "$DOWNLOAD_URL" -o "${TMP_DIR}/${BINARY_NAME}"
     chmod +x "${TMP_DIR}/${BINARY_NAME}"
     
     # 移动到 /usr/local/bin

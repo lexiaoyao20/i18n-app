@@ -3,18 +3,37 @@ name: build
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - v*
   pull_request:
     branches:
-      - master
+      - main
 
 permissions:
   contents: write
 
 jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    outputs:
+      content: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v2
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+
   build-rust:
+    needs: changelog
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest]
@@ -46,15 +65,6 @@ jobs:
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
       - name: Execute rust tests
         run: cargo nextest run --all-features
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v2
-        id: git-cliff
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          config: cliff.toml
-          args: -vv --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
       - name: Build release binary
         if: startsWith(github.ref, 'refs/tags/')
         run: |
@@ -64,7 +74,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          body: ${{ steps.git-cliff.outputs.content }}
+          body: ${{ needs.changelog.outputs.content }}
           files: |
             ${{ matrix.artifact_name }}
             install.sh

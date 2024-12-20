@@ -1,0 +1,45 @@
+image: rust:latest
+
+stages:
+  - test
+  - build
+  - release
+
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+
+# 缓存依赖
+cache:
+  paths:
+    - .cargo
+    - target/
+
+test:
+  stage: test
+  script:
+    - cargo test
+
+build:
+  stage: build
+  script:
+    - cargo build --release
+  artifacts:
+    paths:
+      - target/release/i18n-app
+
+release:
+  stage: release
+  rules:
+    - if: $CI_COMMIT_TAG
+  tags:
+    - macos
+  script:
+    # 构建 ARM 版本
+    - cargo build --release
+    
+    # 打包
+    - mkdir -p release
+    - tar czf release/i18n-app-darwin-arm64.tar.gz -C target/release i18n-app
+  artifacts:
+    paths:
+      - release/*.tar.gz

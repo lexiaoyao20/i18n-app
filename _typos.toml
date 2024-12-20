@@ -1,0 +1,4 @@
+[default.extend-words]
+
+[files]
+extend-exclude = ["*.md", "notebooks/*", "fixtures/*", ".i18n-app.json"]

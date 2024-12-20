@@ -42,8 +42,8 @@ jobs:
             target: x86_64-unknown-linux-gnu
             artifact_name: i18n-app-linux-x86_64
           - platform: macos-latest
-            target: x86_64-apple-darwin
-            artifact_name: i18n-app-darwin-x86_64
+            target: aarch64-apple-darwin
+            artifact_name: i18n-app-darwin-aarch64
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4

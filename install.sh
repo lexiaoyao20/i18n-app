@@ -17,10 +17,12 @@ detect_platform() {
     esac
     
     case "$OS" in
-        linux) echo "linux-${ARCH}" ;;
-        darwin) echo "darwin-${ARCH}" ;;
+        linux) OS="linux" ;;
+        darwin) OS="darwin" ;;
         *) echo "不支持的操作系统: $OS"; exit 1 ;;
     esac
+    
+    echo "${OS}-${ARCH}"
 }
 
 # 获取最新发布版本
@@ -47,7 +49,24 @@ main() {
     
     # 创建临时目录
     TMP_DIR=$(mktemp -d)
-    curl -L "$DOWNLOAD_URL" -o "${TMP_DIR}/${BINARY_NAME}"
+    curl -sL "$DOWNLOAD_URL" -o "${TMP_DIR}/${BINARY_NAME}"
+    
+    # 验证下载的文件
+    if [ ! -s "${TMP_DIR}/${BINARY_NAME}" ]; then
+        echo "错误: 下载失败或文件为空"
+        rm -rf "$TMP_DIR"
+        exit 1
+    fi
+    
+    file_type=$(file "${TMP_DIR}/${BINARY_NAME}")
+    if [[ ! $file_type =~ "executable" ]]; then
+        echo "错误: 下载的文件不是可执行文件"
+        echo "文件类型: $file_type"
+        cat "${TMP_DIR}/${BINARY_NAME}"
+        rm -rf "$TMP_DIR"
+        exit 1
+    fi
+    
     chmod +x "${TMP_DIR}/${BINARY_NAME}"
     
     # 移动到 /usr/local/bin

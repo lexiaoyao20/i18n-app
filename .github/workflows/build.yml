@@ -52,6 +52,8 @@ jobs:
           submodules: recursive
       - name: Install Rust
         run: rustup toolchain install stable --component llvm-tools-preview
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: install nextest

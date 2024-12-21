@@ -28,4 +28,7 @@ pub enum Commands {
 
     /// 更新到最新版本
     Update,
+
+    /// 同步翻译文件（从服务器同步到本地）
+    Pull,
 }

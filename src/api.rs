@@ -29,31 +29,31 @@ struct UploadRequest {
     term_and_text: HashMap<String, String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LongPollingResponse {
     pub code: i32,
     pub message: String,
     pub data: LongPollingData,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LongPollingData {
     #[serde(rename = "taskHash")]
     #[allow(dead_code)]
-    pub task_hash: String,
-    pub file_groups: Vec<FileGroup>,
+    pub task_hash: Option<String>,
+    pub file_groups: Option<Vec<FileGroup>>,
     #[allow(dead_code)]
     pub change_terms: Option<serde_json::Value>,
     #[serde(rename = "systemInfos")]
     #[allow(dead_code)]
-    pub system_infos: Vec<SystemInfo>,
+    pub system_infos: Option<Vec<SystemInfo>>,
     #[serde(rename = "querySubSystemInfo")]
     #[allow(dead_code)]
     pub query_sub_system_info: SystemInfo,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SystemInfo {
     #[allow(dead_code)]
     pub id: i32,
@@ -61,7 +61,7 @@ pub struct SystemInfo {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct FileGroup {
     #[serde(rename = "pathPrefix")]
     pub path_prefix: String,
@@ -219,13 +219,18 @@ pub async fn get_translation_config(config: &Config) -> Result<LongPollingRespon
 
     tracing::info!(
         "Got {} language groups with {} total files",
-        response.data.file_groups.len(),
         response
             .data
             .file_groups
-            .iter()
-            .map(|g| g.file_names.len())
-            .sum::<usize>()
+            .as_ref()
+            .map(|g| g.len())
+            .unwrap_or(0),
+        response
+            .data
+            .file_groups
+            .as_ref()
+            .map(|groups| groups.iter().map(|g| g.file_names.len()).sum::<usize>())
+            .unwrap_or(0)
     );
 
     Ok(response)

@@ -41,6 +41,7 @@ async fn main() -> Result<()> {
             }
             Ok(())
         }
+        Commands::Pull => handle_pull().await,
     }
 }
 
@@ -77,4 +78,10 @@ async fn handle_download(path: Option<String>) -> Result<()> {
     let config = Config::load()?;
     let service = TranslationService::new(config);
     service.download_translations(path).await
+}
+
+async fn handle_pull() -> Result<()> {
+    let config = Config::load()?;
+    let service = TranslationService::new(config);
+    service.sync_translations().await
 }

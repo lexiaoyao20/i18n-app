@@ -1,10 +1,14 @@
 use anyhow::Result;
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, USER_AGENT};
 use semver::Version;
 use serde::Deserialize;
+use std::env;
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GITHUB_LATEST_RELEASE: &str =
     "https://api.github.com/repos/lexiaoyao20/i18n-app/releases/latest";
+const MAX_RETRIES: u32 = 3;
+const RETRY_DELAY: std::time::Duration = std::time::Duration::from_secs(1);
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
@@ -21,8 +25,50 @@ pub struct GithubAsset {
     pub browser_download_url: String,
 }
 
+fn create_client() -> Result<reqwest::Client> {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        ACCEPT,
+        HeaderValue::from_static("application/vnd.github.v3+json"),
+    );
+    headers.insert(USER_AGENT, HeaderValue::from_static("i18n-app"));
+
+    // 如果设置了 GITHUB_TOKEN 环境变量，添加认证头
+    if let Ok(token) = env::var("GITHUB_TOKEN") {
+        headers.insert(
+            AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", token))?,
+        );
+    }
+
+    Ok(reqwest::Client::builder()
+        .default_headers(headers)
+        .timeout(std::time::Duration::from_secs(10))
+        .build()?)
+}
+
+async fn check_rate_limit(client: &reqwest::Client) -> Result<()> {
+    let response = client
+        .get("https://api.github.com/rate_limit")
+        .send()
+        .await?;
+
+    if let Some(remaining) = response
+        .headers()
+        .get("x-ratelimit-remaining")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| s.parse::<u32>().ok())
+    {
+        if remaining < 10 {
+            tracing::warn!("GitHub API 调用次数即将用尽，剩余：{}", remaining);
+        }
+    }
+
+    Ok(())
+}
+
 pub async fn check_update() -> Result<Option<GithubRelease>> {
-    match check_update_internal().await {
+    match check_update_with_retry().await {
         Ok(result) => Ok(result),
         Err(e) => {
             tracing::warn!("检查更新失败: {}", e);
@@ -31,13 +77,37 @@ pub async fn check_update() -> Result<Option<GithubRelease>> {
     }
 }
 
-async fn check_update_internal() -> Result<Option<GithubRelease>> {
+async fn check_update_with_retry() -> Result<Option<GithubRelease>> {
+    let client = create_client()?;
+    let mut last_error = None;
+
+    for retry in 0..MAX_RETRIES {
+        if retry > 0 {
+            tokio::time::sleep(RETRY_DELAY).await;
+        }
+
+        match check_update_internal(&client).await {
+            Ok(release) => return Ok(release),
+            Err(e) => {
+                tracing::warn!("第 {} 次检查更新失败: {}", retry + 1, e);
+                last_error = Some(e);
+
+                // 检查是否是频率限制导致的错误
+                if let Ok(()) = check_rate_limit(&client).await {
+                    continue;
+                }
+            }
+        }
+    }
+
+    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("检查更新失败")))
+}
+
+async fn check_update_internal(client: &reqwest::Client) -> Result<Option<GithubRelease>> {
     let current = Version::parse(CURRENT_VERSION)?;
-    let client = reqwest::Client::new();
 
     let latest: GithubRelease = client
         .get(GITHUB_LATEST_RELEASE)
-        .header("User-Agent", "i18n-app")
         .send()
         .await?
         .json()

@@ -7,6 +7,7 @@ mod cli;
 mod config;
 mod service;
 mod translation;
+mod update;
 
 use cli::{Cli, Commands};
 use config::Config;
@@ -17,10 +18,29 @@ async fn main() -> Result<()> {
     setup_logging();
     let cli = Cli::parse();
 
+    // 除了 update 命令外，其他命令都先检查更新
+    if !matches!(cli.command, Commands::Update) {
+        if let Some(release) = update::check_update().await? {
+            tracing::info!(
+                "发现新版本 {}，请运行 'i18n-app update' 进行更新",
+                release.tag_name
+            );
+            tracing::info!("更新地址：{}", release.html_url);
+            // 发现新版本时直接退出程序
+            std::process::exit(1);
+        }
+    }
+
     match cli.command {
         Commands::Init => handle_init(),
         Commands::Push { path } => handle_push(path).await,
         Commands::Download { path } => handle_download(path).await,
+        Commands::Update => {
+            if update::update().await? {
+                std::process::exit(0);
+            }
+            Ok(())
+        }
     }
 }
 

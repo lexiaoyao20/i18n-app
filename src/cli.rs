@@ -25,4 +25,7 @@ pub enum Commands {
         #[arg(short, long)]
         path: Option<String>,
     },
+
+    /// 更新到最新版本
+    Update,
 }

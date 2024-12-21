@@ -46,6 +46,7 @@ main() {
     DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/${BINARY_NAME}-${PLATFORM}"
     
     echo "下载 ${BINARY_NAME} ${VERSION} for ${PLATFORM}..."
+    echo "下载文件：${DOWNLOAD_URL}"
     
     # 创建临时目录
     TMP_DIR=$(mktemp -d)
@@ -71,8 +72,19 @@ main() {
     
     # 移动到 /usr/local/bin
     if [ -w "/usr/local/bin" ]; then
+        # 如果本地已存在旧版本，先移除旧版本文件
+        if [ -f "/usr/local/bin/${BINARY_NAME}" ]; then
+            echo "移除旧版本..."
+            rm -f "/usr/local/bin/${BINARY_NAME}"
+        fi
+
         mv "${TMP_DIR}/${BINARY_NAME}" "/usr/local/bin/${BINARY_NAME}"
     else
+        # 如果需要 sudo 权限
+        if [ -f "/usr/local/bin/${BINARY_NAME}" ]; then
+            echo "移除旧版本..."
+            sudo rm -f "/usr/local/bin/${BINARY_NAME}"
+        fi
         sudo mv "${TMP_DIR}/${BINARY_NAME}" "/usr/local/bin/${BINARY_NAME}"
     fi
     

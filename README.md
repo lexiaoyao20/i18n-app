@@ -152,21 +152,6 @@ cargo test
 RUST_LOG=debug i18n-app <command>
 ```
 
-## GitHub Token 配置（可选）
-
-为了避免 GitHub API 请求限制，可以配置 GitHub Token：
-
-1. 创建配置文件：
-```bash
-mkdir -p ~/.config/i18n-app
-echo 'token = "your-github-token"' > ~/.config/i18n-app/config.toml
-```
-
-2. 或者设置环境变量：
-```bash
-export GITHUB_TOKEN="your-github-token"
-```
-
 ## 常见问题
 
 1. **更新失败**

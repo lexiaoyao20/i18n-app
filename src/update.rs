@@ -1,12 +1,15 @@
 use anyhow::Result;
+use futures_util::StreamExt;
+use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, USER_AGENT};
+use reqwest::Client;
 use semver::Version;
 use serde::Deserialize;
-use std::env;
 
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GITHUB_LATEST_RELEASE: &str =
     "https://api.github.com/repos/lexiaoyao20/i18n-app/releases/latest";
+const GITHUB_TOKEN: &str = "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";
 const MAX_RETRIES: u32 = 3;
 const RETRY_DELAY: std::time::Duration = std::time::Duration::from_secs(1);
 
@@ -33,12 +36,10 @@ fn create_client() -> Result<reqwest::Client> {
     );
     headers.insert(USER_AGENT, HeaderValue::from_static("i18n-app"));
 
-    // 如果设置了 GITHUB_TOKEN 环境变量，添加认证头
-    if let Ok(token) = env::var("GITHUB_TOKEN") {
-        headers.insert(
-            AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {}", token))?,
-        );
+    // 添加固定的 GitHub Token
+    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", GITHUB_TOKEN)) {
+        headers.insert(AUTHORIZATION, auth_value);
+        tracing::debug!("Using GitHub token for authentication");
     }
 
     Ok(reqwest::Client::builder()
@@ -53,15 +54,24 @@ async fn check_rate_limit(client: &reqwest::Client) -> Result<()> {
         .send()
         .await?;
 
-    if let Some(remaining) = response
+    let remaining = response
         .headers()
         .get("x-ratelimit-remaining")
         .and_then(|h| h.to_str().ok())
         .and_then(|s| s.parse::<u32>().ok())
-    {
-        if remaining < 10 {
-            tracing::warn!("GitHub API 调用次数即将用尽，剩余：{}", remaining);
-        }
+        .unwrap_or(0);
+
+    let limit = response
+        .headers()
+        .get("x-ratelimit-limit")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(60);
+
+    tracing::debug!("GitHub API rate limit: {}/{} remaining", remaining, limit);
+
+    if remaining < 10 {
+        tracing::warn!("GitHub API 调用次数即将用尽，剩余：{}/{}", remaining, limit);
     }
 
     Ok(())
@@ -122,6 +132,35 @@ async fn check_update_internal(client: &reqwest::Client) -> Result<Option<Github
     }
 }
 
+async fn download_file(client: &Client, url: &str, description: &str) -> Result<Vec<u8>> {
+    let res = client.get(url).send().await?;
+    let total_size = res.content_length().unwrap_or(0);
+
+    // 创建进度条
+    let pb = ProgressBar::new(total_size);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
+            .progress_chars("#>-"),
+    );
+    pb.set_message(description.to_string());
+
+    // 下载文件并更新进度
+    let mut downloaded: u64 = 0;
+    let mut bytes = Vec::new();
+    let mut stream = res.bytes_stream();
+
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk?;
+        downloaded += chunk.len() as u64;
+        pb.set_position(downloaded);
+        bytes.extend_from_slice(&chunk);
+    }
+
+    pb.finish_with_message(format!("{} 下载完成", description));
+    Ok(bytes)
+}
+
 pub async fn update() -> Result<bool> {
     match update_internal().await {
         Ok(updated) => Ok(updated),
@@ -136,16 +175,19 @@ async fn update_internal() -> Result<bool> {
     if let Some(release) = check_update().await? {
         tracing::info!("发现新版本 {}，正在更新...", release.tag_name);
 
-        // 首先下载安装脚本
-        let install_script =
-            reqwest::get("https://github.com/lexiaoyao20/i18n-app/raw/main/install.sh")
-                .await?
-                .text()
-                .await?;
+        let client = create_client()?;
+
+        // 下载安装脚本
+        let install_script = download_file(
+            &client,
+            "https://github.com/lexiaoyao20/i18n-app/raw/main/install.sh",
+            "下载安装脚本",
+        )
+        .await?;
 
         // 创建临时文件来存储安装脚本
         let mut temp_file = tempfile::NamedTempFile::new()?;
-        std::io::Write::write_all(&mut temp_file, install_script.as_bytes())?;
+        std::io::Write::write_all(&mut temp_file, &install_script)?;
 
         // 设置脚本文件为可执行
         #[cfg(unix)]

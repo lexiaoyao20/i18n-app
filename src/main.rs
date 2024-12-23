@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use tracing::Level;
+use tracing_subscriber::{fmt, layer::Layer, prelude::*, registry::Registry, EnvFilter};
 
 mod api;
 mod cli;
@@ -13,9 +13,49 @@ use cli::{Cli, Commands};
 use config::Config;
 use service::TranslationService;
 
+fn setup_logging() -> Result<()> {
+    // 创建日志文件
+    let log_file = TranslationService::init_log_file()?;
+
+    // 设置环境过滤器
+    #[cfg(debug_assertions)]
+    let stdout_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    #[cfg(not(debug_assertions))]
+    let stdout_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
+    #[cfg(debug_assertions)]
+    let file_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    #[cfg(not(debug_assertions))]
+    let file_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+
+    // 设置日志订阅器
+    let file_layer = fmt::layer()
+        .with_file(true)
+        .with_line_number(true)
+        .with_writer(log_file)
+        .with_target(false)
+        .with_thread_ids(false)
+        .with_thread_names(false)
+        .with_ansi(false);
+
+    let stdout_layer = fmt::layer()
+        .with_target(false)
+        .with_thread_ids(false)
+        .with_thread_names(false);
+
+    Registry::default()
+        .with(stdout_layer.with_filter(stdout_filter))
+        .with(file_layer.with_filter(file_filter))
+        .init();
+
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    setup_logging();
+    setup_logging()?;
     let cli = Cli::parse();
 
     // 除了 update 命令外，其他命令都先检查更新
@@ -43,15 +83,6 @@ async fn main() -> Result<()> {
         }
         Commands::Pull => handle_pull().await,
     }
-}
-
-fn setup_logging() {
-    #[cfg(debug_assertions)]
-    let level = Level::DEBUG;
-    #[cfg(not(debug_assertions))]
-    let level = Level::INFO;
-
-    tracing_subscriber::fmt().with_max_level(level).init();
 }
 
 fn handle_init() -> Result<()> {

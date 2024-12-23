@@ -1,5 +1,6 @@
 use anyhow::{ensure, Context, Result};
 use std::collections::HashMap;
+use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 
 use crate::{
@@ -43,14 +44,10 @@ impl TranslationService {
     }
 
     pub async fn push_translations(&self, path: Option<String>) -> Result<()> {
-        // Download current translations
-        tracing::info!("Downloading current translations to cache...");
-        let cached_translations = self.download_to_cache().await?;
-
-        // Read local translations
+        // 1. 读取本地翻译文件
         let (base_path, local_translations) = self.read_local_translations(path)?;
 
-        // Find base language translation
+        // 2. 找到基准语言翻译并克隆它
         let base_translation = local_translations
             .iter()
             .find(|t| t.language_code == self.config.base_language)
@@ -59,26 +56,113 @@ impl TranslationService {
                     "Base language {} not found in local translations",
                     self.config.base_language
                 )
-            })?;
+            })?
+            .clone();
 
-        // Clone base_translation for later use
-        let base_translation = base_translation.clone();
+        // 3. 下载当前服务器翻译到缓存
+        tracing::info!("Downloading current translations to cache...");
+        let cached_translations = self.download_to_cache().await?;
 
-        // Process each translation
-        for local_translation in local_translations {
-            if local_translation.language_code == self.config.base_language {
-                // Process base language normally
-                self.process_translation(&local_translation, &cached_translations, &base_path)
+        // 4. 处理每个翻译文件
+        for mut local_translation in local_translations {
+            let lang_code = &local_translation.language_code;
+            let is_base_language = lang_code == &self.config.base_language;
+            let full_path = self.get_full_path(&local_translation, &base_path);
+
+            if !is_base_language {
+                // 对非基准语言，先补充缺失的键
+                let missing_keys =
+                    translation::get_missing_keys(&base_translation, &local_translation);
+                if !missing_keys.is_empty() {
+                    tracing::info!(
+                        "Found {} missing keys in {} compared to base language {}",
+                        missing_keys.len(),
+                        lang_code,
+                        self.config.base_language
+                    );
+
+                    // 将缺失的键添加到本地翻译文件中
+                    local_translation.content.extend(missing_keys.clone());
+
+                    // 保存更新后的翻译文件到本地
+                    let local_file_path = base_path.join(&local_translation.relative_path);
+                    self.save_translation_file(&local_translation, &local_file_path)?;
+
+                    tracing::info!(
+                        "Updated local translation file {} with {} missing keys",
+                        local_file_path.display(),
+                        missing_keys.len()
+                    );
+
+                    // 创建一个只包含缺失键的翻译文件用于上传
+                    let missing_translation = TranslationFile::from_content(
+                        local_translation.language_code.clone(),
+                        local_translation.relative_path.clone(),
+                        missing_keys,
+                    );
+
+                    // 上传缺失的键
+                    self.upload_translation(&missing_translation, &full_path)
+                        .await?;
+                }
+            }
+
+            // 检查是否是首次上传
+            let is_first_upload = !cached_translations.contains_key(lang_code);
+
+            if is_first_upload {
+                // 首次上传，上传全部内容
+                self.upload_translation(&local_translation, &full_path)
                     .await?;
             } else {
-                // For other languages, first complete missing keys
-                self.process_non_base_translation(
-                    &local_translation,
-                    &base_translation,
-                    &cached_translations,
-                    &base_path,
-                )
-                .await?;
+                // 处理新增的键（只上传本地新增的键，忽略值不同的键）
+                if let Some(cached_translation) = cached_translations.get(lang_code) {
+                    let mut new_keys = HashMap::new();
+
+                    // 只收集远程不存在的键（新增的键）
+                    for (key, value) in &local_translation.content {
+                        if !cached_translation.content.contains_key(key) {
+                            new_keys.insert(key.clone(), value.clone());
+                        }
+                    }
+
+                    if !new_keys.is_empty() {
+                        tracing::info!("发现 {} 个新增的键:", new_keys.len());
+                        for (key, value) in &new_keys {
+                            tracing::info!("  + {}: {}", key, value);
+                        }
+
+                        let new_translation = TranslationFile::from_content(
+                            local_translation.language_code.clone(),
+                            local_translation.relative_path.clone(),
+                            new_keys,
+                        );
+                        self.upload_translation(&new_translation, &full_path)
+                            .await?;
+                        tracing::info!("成功上传新增的键 🎉");
+                    } else {
+                        tracing::info!("没有发现新增的键");
+                    }
+
+                    // 打印值不同的键（仅供参考，不上传）
+                    let mut different_values = Vec::new();
+                    for (key, local_value) in &local_translation.content {
+                        if let Some(remote_value) = cached_translation.content.get(key) {
+                            if local_value != remote_value {
+                                different_values.push((key, local_value, remote_value));
+                            }
+                        }
+                    }
+
+                    if !different_values.is_empty() {
+                        tracing::info!("以下键的值与远程不同（将保持远程值）:");
+                        for (key, local_value, remote_value) in different_values {
+                            tracing::info!("  ~ {}", key);
+                            tracing::info!("    - 本地值: {}", local_value);
+                            tracing::info!("    + 远程值: {}", remote_value);
+                        }
+                    }
+                }
             }
         }
 
@@ -210,62 +294,11 @@ impl TranslationService {
         Ok((base_path, local_translations))
     }
 
-    async fn process_translation(
-        &self,
-        local_translation: &TranslationFile,
-        cached_translations: &HashMap<String, TranslationFile>,
-        base_path: &Path,
-    ) -> Result<()> {
-        let lang_code = &local_translation.language_code;
-        let full_path = self.get_full_path(local_translation, base_path);
-
-        let diff = self.get_translation_diff(local_translation, cached_translations, lang_code);
-
-        if diff.is_empty() {
-            tracing::info!("No changes found for {}", full_path);
-            return Ok(());
-        }
-
-        self.log_diff_details(&diff, &full_path);
-
-        let diff_translation = TranslationFile::from_content(
-            local_translation.language_code.clone(),
-            local_translation.relative_path.clone(),
-            diff,
-        );
-
-        self.upload_translation(&diff_translation, &full_path).await
-    }
-
     fn get_full_path(&self, translation: &TranslationFile, base_path: &Path) -> String {
         if translation.relative_path.starts_with("fixtures/") {
             translation.relative_path.clone()
         } else {
             format!("{}/{}", base_path.display(), translation.relative_path)
-        }
-    }
-
-    fn get_translation_diff(
-        &self,
-        local_translation: &TranslationFile,
-        cached_translations: &HashMap<String, TranslationFile>,
-        lang_code: &str,
-    ) -> HashMap<String, String> {
-        if let Some(cached_translation) = cached_translations.get(lang_code) {
-            crate::translation::get_translation_diff(local_translation, cached_translation)
-        } else {
-            tracing::info!(
-                "No cached translation found for {}, uploading all content",
-                lang_code
-            );
-            local_translation.content.clone()
-        }
-    }
-
-    fn log_diff_details(&self, diff: &HashMap<String, String>, full_path: &str) {
-        tracing::info!("Uploading {} new keys for {}", diff.len(), full_path);
-        for (key, value) in diff {
-            tracing::info!("  {} = {}", key, value);
         }
     }
 
@@ -358,68 +391,6 @@ impl TranslationService {
         Ok(())
     }
 
-    async fn process_non_base_translation(
-        &self,
-        translation: &TranslationFile,
-        base_translation: &TranslationFile,
-        cached_translations: &HashMap<String, TranslationFile>,
-        base_path: &Path,
-    ) -> Result<()> {
-        let lang_code = &translation.language_code;
-        let full_path = self.get_full_path(translation, base_path);
-
-        // Get missing keys from base translation
-        let missing_keys = translation::get_missing_keys(base_translation, translation);
-        if !missing_keys.is_empty() {
-            tracing::info!(
-                "Found {} missing keys in {} compared to base language {}",
-                missing_keys.len(),
-                lang_code,
-                self.config.base_language
-            );
-            for (key, value) in &missing_keys {
-                tracing::info!("  {} = {}", key, value);
-            }
-
-            // Create a new translation with missing keys
-            let missing_translation = TranslationFile::from_content(
-                translation.language_code.clone(),
-                translation.relative_path.clone(),
-                missing_keys,
-            );
-
-            // Upload missing keys
-            if let Err(e) = api::upload_translation(&self.config, &missing_translation).await {
-                tracing::error!("Failed to push missing keys for {}: {}", full_path, e);
-                return Err(e);
-            }
-            tracing::info!("Successfully pushed missing keys for {}", full_path);
-        }
-
-        // Process normal differences
-        let diff = self.get_translation_diff(translation, cached_translations, lang_code);
-        if !diff.is_empty() {
-            tracing::info!("Uploading {} new keys for {}", diff.len(), full_path);
-            for (key, value) in &diff {
-                tracing::info!("  {} = {}", key, value);
-            }
-
-            let diff_translation = TranslationFile::from_content(
-                translation.language_code.clone(),
-                translation.relative_path.clone(),
-                diff,
-            );
-
-            if let Err(e) = api::upload_translation(&self.config, &diff_translation).await {
-                tracing::error!("Failed to push {}: {}", full_path, e);
-                return Err(e);
-            }
-            tracing::info!("Push {} success 🎉🎉🎉", full_path);
-        }
-
-        Ok(())
-    }
-
     /// 同步翻译文件（从服务器同步到本地）
     pub async fn sync_translations(&self) -> Result<()> {
         // 1. 下载所有翻译到缓存目录
@@ -447,31 +418,6 @@ impl TranslationService {
                 )
             })?;
 
-        let mut cached_files = HashMap::new();
-
-        // 处理每个语言组的翻译
-        for group in file_groups {
-            if group.file_names.is_empty() {
-                tracing::warn!("语言 {} 没有找到任何翻译文件", group.language_code);
-                continue;
-            }
-
-            if let Err(e) = self
-                .process_language_group(
-                    group,
-                    &PathBuf::from(".i18n-app").join("cache"),
-                    &mut cached_files,
-                )
-                .await
-                .with_context(|| format!("处理语言 {} 的翻译失败", group.language_code))
-            {
-                tracing::error!("{:#}", e);
-                continue;
-            }
-        }
-
-        ensure!(!cached_files.is_empty(), "未能成功下载任何翻译文件");
-
         // 2. 获取需要同步的本地文件列表
         let (base_path, local_files) = self
             .read_local_translations(None)
@@ -491,18 +437,63 @@ impl TranslationService {
 
         for local_file in local_files {
             let lang_code = &local_file.language_code;
-            if let Some(cached_file) = cached_files.get(lang_code) {
+
+            // 查找对应的语言组
+            if let Some(group) = file_groups.iter().find(|g| &g.language_code == lang_code) {
                 let target_path = base_path.join(&local_file.relative_path);
                 tracing::info!("正在同步 {} 到 {}", lang_code, target_path.display());
 
-                if let Err(e) = self
-                    .sync_single_file(cached_file, &target_path)
-                    .with_context(|| format!("同步文件 {} 失败", target_path.display()))
-                {
-                    tracing::error!("{:#}", e);
-                    failed_count += 1;
-                } else {
-                    success_count += 1;
+                // 使用与 download 功能相同的文件名格式
+                for file_name in &group.file_names {
+                    // 下载翻译内容
+                    match api::download_translation(&self.config, group, file_name).await {
+                        Ok(content) => {
+                            // 解析 JSON 内容
+                            let json_value: serde_json::Value = serde_json::from_str(&content)?;
+                            let lang_key = format!("languages/{}.json", lang_code);
+
+                            if let Some(remote_content) = json_value.get(&lang_key) {
+                                // 读取本地文件内容
+                                let local_content = std::fs::read_to_string(&target_path)
+                                    .with_context(|| {
+                                        format!("读取本地文件 {} 失败", target_path.display())
+                                    })?;
+                                let local_json: serde_json::Value =
+                                    serde_json::from_str(&local_content)?;
+
+                                // 打印差异信息
+                                self.print_json_diff(&local_json, remote_content, lang_code);
+
+                                // 合并本地和远程内容
+                                let merged_content =
+                                    self.merge_json_content(&local_json, remote_content);
+
+                                // 确保目标目录存在
+                                if let Some(parent) = target_path.parent() {
+                                    std::fs::create_dir_all(parent).with_context(|| {
+                                        format!("创建目录 {} 失败", parent.display())
+                                    })?;
+                                }
+
+                                // 写入合并后的内容
+                                let formatted_json = serde_json::to_string_pretty(&merged_content)?;
+                                std::fs::write(&target_path, formatted_json).with_context(
+                                    || format!("写入文件 {} 失败", target_path.display()),
+                                )?;
+
+                                tracing::info!("成功同步 {}", target_path.display());
+                                success_count += 1;
+                                break; // 找到并处理了文件后就跳出循环
+                            } else {
+                                tracing::error!("语言 {} 的翻译内容不存在", lang_code);
+                                failed_count += 1;
+                            }
+                        }
+                        Err(e) => {
+                            tracing::error!("下载语言 {} 的翻译失败: {}", lang_code, e);
+                            failed_count += 1;
+                        }
+                    }
                 }
             } else {
                 tracing::warn!("未找到语言 {} 的远程翻译，跳过同步", lang_code);
@@ -510,12 +501,7 @@ impl TranslationService {
             }
         }
 
-        // 4. 清理缓存目录
-        if let Err(e) = self.cleanup_cache_dir() {
-            tracing::warn!("清理缓存目录失败: {:#}", e);
-        }
-
-        // 5. 输出最终结果
+        // 4. 输出最终结果
         ensure!(
             success_count > 0,
             format!(
@@ -534,32 +520,307 @@ impl TranslationService {
         Ok(())
     }
 
-    /// 同步单个文件
-    fn sync_single_file(&self, cached_file: &TranslationFile, target_path: &Path) -> Result<()> {
-        // 确保目标目录存在
-        if let Some(parent) = target_path.parent() {
-            std::fs::create_dir_all(parent)
-                .with_context(|| format!("创建目录 {} 失败", parent.display()))?;
+    /// 添加新的辅助方法来保存翻译文件
+    fn save_translation_file(&self, translation: &TranslationFile, file_path: &Path) -> Result<()> {
+        // 将扁平的键值对转换为嵌套的 JSON 结构
+        let mut json_value = serde_json::Map::new();
+        for (key, value) in &translation.content {
+            let parts: Vec<&str> = key.split('.').collect();
+            let mut current = &mut json_value;
+
+            // 创建嵌套结构
+            for (i, part) in parts.iter().enumerate() {
+                if i == parts.len() - 1 {
+                    current.insert(
+                        (*part).to_string(),
+                        serde_json::Value::String(value.clone()),
+                    );
+                } else {
+                    current = current
+                        .entry((*part).to_string())
+                        .or_insert(serde_json::Value::Object(serde_json::Map::new()))
+                        .as_object_mut()
+                        .ok_or_else(|| anyhow::anyhow!("Failed to create nested structure"))?;
+                }
+            }
         }
 
-        // 序列化并写入文件
-        let json_content =
-            serde_json::to_string_pretty(&cached_file.content).context("序列化翻译内容失败")?;
+        // 创建父目录（如果不存在）
+        if let Some(parent) = file_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
 
-        std::fs::write(target_path, json_content)
-            .with_context(|| format!("写入文件 {} 失败", target_path.display()))?;
+        // 将 JSON 写入文件
+        let json_str = serde_json::to_string_pretty(&json_value)?;
+        std::fs::write(file_path, json_str)?;
 
-        tracing::info!("成功同步 {}", target_path.display());
         Ok(())
     }
 
-    /// 清理缓存目录
-    fn cleanup_cache_dir(&self) -> Result<()> {
-        let cache_dir = PathBuf::from(".i18n-app").join("cache");
-        if cache_dir.exists() {
-            std::fs::remove_dir_all(&cache_dir)
-                .with_context(|| format!("删除缓存目录 {} 失败", cache_dir.display()))?;
+    // 修改为实例方法
+    fn print_json_diff(
+        &self,
+        local: &serde_json::Value,
+        remote: &serde_json::Value,
+        lang_code: &str,
+    ) {
+        let mut local_map = HashMap::new();
+        let mut remote_map = HashMap::new();
+
+        // 将 JSON 扁平化以便比较
+        flatten_json_inner(local, String::new(), &mut local_map);
+        flatten_json_inner(remote, String::new(), &mut remote_map);
+
+        // 找出本地独有的键（将被保留）
+        let mut local_only = Vec::new();
+        for key in local_map.keys() {
+            if !remote_map.contains_key(key) {
+                local_only.push(key);
+            }
         }
+
+        // 找出远程有但本地没有的键（新增的键）
+        let mut remote_only = Vec::new();
+        for key in remote_map.keys() {
+            if !local_map.contains_key(key) {
+                remote_only.push(key);
+            }
+        }
+
+        // 找出值不同的键（将被更新的键）
+        let mut different_values = Vec::new();
+        for (key, local_value) in &local_map {
+            if let Some(remote_value) = remote_map.get(key) {
+                if local_value != remote_value {
+                    different_values.push((key, local_value, remote_value));
+                }
+            }
+        }
+
+        // 打印差异信息
+        if !local_only.is_empty() {
+            tracing::info!("语言 {} 中本地独有的键（将被保留）:", lang_code);
+            for key in local_only {
+                tracing::info!("  * {}: {}", key, local_map.get(key).unwrap());
+            }
+        }
+
+        if !remote_only.is_empty() {
+            tracing::info!("语言 {} 中新增的键:", lang_code);
+            for key in remote_only {
+                tracing::info!("  + {}: {}", key, remote_map.get(key).unwrap());
+            }
+        }
+
+        if !different_values.is_empty() {
+            tracing::info!("语言 {} 中将被更新的键:", lang_code);
+            for (key, local_value, remote_value) in different_values {
+                tracing::info!("  ~ {}", key);
+                tracing::info!("    - 当前值: {}", local_value);
+                tracing::info!("    + 新值: {}", remote_value);
+            }
+        }
+    }
+
+    // 添加新的辅助方法来合并 JSON 内容
+    fn merge_json_content(
+        &self,
+        local: &serde_json::Value,
+        remote: &serde_json::Value,
+    ) -> serde_json::Value {
+        // 将递归逻辑移到内部函数
+        fn merge_values(
+            local: &serde_json::Value,
+            remote: &serde_json::Value,
+        ) -> serde_json::Value {
+            match (local, remote) {
+                (serde_json::Value::Object(local_map), serde_json::Value::Object(remote_map)) => {
+                    let mut merged = serde_json::Map::new();
+
+                    // 首先添加所有本地键值对
+                    for (key, local_value) in local_map {
+                        merged.insert(key.clone(), local_value.clone());
+                    }
+
+                    // 然后处理远程键值对
+                    for (key, remote_value) in remote_map {
+                        match (local_map.get(key), remote_value) {
+                            // 如果两边都是对象，递归合并
+                            (Some(local_value), remote_value)
+                                if local_value.is_object() && remote_value.is_object() =>
+                            {
+                                merged.insert(key.clone(), merge_values(local_value, remote_value));
+                            }
+                            // 如果远程有值，使用远程的值（覆盖本地的非对象值）
+                            (_, remote_value) => {
+                                merged.insert(key.clone(), remote_value.clone());
+                            }
+                        }
+                    }
+
+                    serde_json::Value::Object(merged)
+                }
+                // 如果不是对象类型，保留本地值
+                (local, _) => local.clone(),
+            }
+        }
+
+        // 调用内部函数
+        merge_values(local, remote)
+    }
+
+    // 改为公共方法
+    pub fn init_log_file() -> Result<File> {
+        let log_dir = PathBuf::from(".i18n-app");
+        fs::create_dir_all(&log_dir)?;
+        let log_file = log_dir.join("run.log");
+        let file = File::create(log_file)?;
+        Ok(file)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use tempfile::TempDir;
+
+    fn create_test_service() -> TranslationService {
+        let config = Config {
+            host: "https://test.com".to_string(),
+            sub_system_name: "test".to_string(),
+            product_code: "test".to_string(),
+            product_id: 1,
+            version_no: "1.0.0".to_string(),
+            base_language: "en-US".to_string(),
+            include: vec![],
+            exclude: vec![],
+        };
+        TranslationService::new(config)
+    }
+
+    #[test]
+    fn test_merge_json_content() {
+        let service = create_test_service();
+
+        // 测试场景 1: 基本合并
+        let local = json!({
+            "common": {
+                "time": {
+                    "tomorrow": "Tomorrow",
+                    "today": "Today"
+                }
+            }
+        });
+
+        let remote = json!({
+            "common": {
+                "time": {
+                    "today": "Today Updated",
+                    "yesterday": "Yesterday"
+                }
+            }
+        });
+
+        let merged = service.merge_json_content(&local, &remote);
+        let merged_obj = merged.as_object().unwrap();
+
+        assert!(merged_obj["common"]["time"]["tomorrow"].as_str().unwrap() == "Tomorrow"); // 保留本地独有的键
+        assert!(merged_obj["common"]["time"]["today"].as_str().unwrap() == "Today Updated"); // 使用远程的值
+        assert!(merged_obj["common"]["time"]["yesterday"].as_str().unwrap() == "Yesterday"); // 添加远程新键
+
+        // 测试场景 2: 嵌套对象合并
+        let local = json!({
+            "settings": {
+                "display": {
+                    "theme": "dark",
+                    "font": "Arial"
+                }
+            }
+        });
+
+        let remote = json!({
+            "settings": {
+                "display": {
+                    "theme": "light",
+                    "size": "large"
+                }
+            }
+        });
+
+        let merged = service.merge_json_content(&local, &remote);
+        let merged_obj = merged.as_object().unwrap();
+
+        assert!(merged_obj["settings"]["display"]["font"].as_str().unwrap() == "Arial"); // 保留本地独有的键
+        assert!(merged_obj["settings"]["display"]["theme"].as_str().unwrap() == "light"); // 使用远程的值
+        assert!(merged_obj["settings"]["display"]["size"].as_str().unwrap() == "large");
+        // 添加远程新键
+    }
+
+    #[test]
+    fn test_save_translation_file() -> Result<()> {
+        let service = create_test_service();
+        let temp_dir = TempDir::new()?;
+        let file_path = temp_dir.path().join("test.json");
+
+        let mut content = HashMap::new();
+        content.insert("common.time.tomorrow".to_string(), "Tomorrow".to_string());
+        content.insert("common.time.today".to_string(), "Today".to_string());
+
+        let translation = TranslationFile {
+            language_code: "en-US".to_string(),
+            relative_path: "test.json".to_string(),
+            content,
+        };
+
+        service.save_translation_file(&translation, &file_path)?;
+
+        // 验证保存的文件内容
+        let saved_content = std::fs::read_to_string(&file_path)?;
+        let saved_json: serde_json::Value = serde_json::from_str(&saved_content)?;
+
+        assert!(saved_json["common"]["time"]["tomorrow"].as_str().unwrap() == "Tomorrow");
+        assert!(saved_json["common"]["time"]["today"].as_str().unwrap() == "Today");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_print_json_diff() {
+        let service = create_test_service();
+
+        let local = json!({
+            "common": {
+                "time": {
+                    "tomorrow": "Tomorrow",
+                    "today": "Today"
+                }
+            }
+        });
+
+        let remote = json!({
+            "common": {
+                "time": {
+                    "today": "Today Updated",
+                    "yesterday": "Yesterday"
+                }
+            }
+        });
+
+        // 这个测试主要是确保方法不会崩溃，因为它只是打印日志
+        service.print_json_diff(&local, &remote, "en-US");
+    }
+
+    #[test]
+    fn test_init_log_file() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        std::env::set_current_dir(temp_dir.path())?;
+
+        TranslationService::init_log_file()?;
+
+        let log_file = temp_dir.path().join(".i18n-app").join("run.log");
+        assert!(log_file.exists());
+
         Ok(())
     }
 }

@@ -145,25 +145,6 @@ pub fn flatten_json_inner(value: &Value, prefix: String, map: &mut HashMap<Strin
     }
 }
 
-/// Compare two translation files and return the differences (keys in local that are not in remote)
-pub fn get_translation_diff(
-    local: &TranslationFile,
-    remote: &TranslationFile,
-) -> HashMap<String, String> {
-    let mut diff = HashMap::new();
-
-    for (key, value) in &local.content {
-        // Only include keys that don't exist in remote
-        if !remote.content.contains_key(key) {
-            diff.insert(key.clone(), value.clone());
-        }
-        // We don't include modified keys (where remote.content[key] != value)
-        // because we consider remote content as the source of truth
-    }
-
-    diff
-}
-
 /// Compare two translation files and return the missing keys from base translation
 pub fn get_missing_keys(
     base: &TranslationFile,
@@ -249,40 +230,6 @@ mod tests {
         assert_eq!(translations.len(), 2); // Should not include es-ES.json
 
         Ok(())
-    }
-
-    #[test]
-    fn test_get_translation_diff() {
-        let mut local_content = HashMap::new();
-        local_content.insert("key1".to_string(), "Value1".to_string()); // same in both
-        local_content.insert("key2".to_string(), "Value2".to_string()); // new in local
-        local_content.insert("key3".to_string(), "NewValue3".to_string()); // modified in local
-        local_content.insert("key4".to_string(), "Value4".to_string()); // new in local
-
-        let mut remote_content = HashMap::new();
-        remote_content.insert("key1".to_string(), "Value1".to_string());
-        remote_content.insert("key3".to_string(), "OldValue3".to_string());
-
-        let local = TranslationFile::from_content(
-            "en-US".to_string(),
-            "en-US.json".to_string(),
-            local_content,
-        );
-
-        let remote = TranslationFile::from_content(
-            "en-US".to_string(),
-            "en-US.json".to_string(),
-            remote_content,
-        );
-
-        let diff = get_translation_diff(&local, &remote);
-
-        // Should only include new keys (key2 and key4), not modified key (key3)
-        assert_eq!(diff.len(), 2);
-        assert_eq!(diff.get("key2").unwrap(), "Value2");
-        assert_eq!(diff.get("key4").unwrap(), "Value4");
-        assert!(!diff.contains_key("key1")); // exists in both
-        assert!(!diff.contains_key("key3")); // modified but exists in remote
     }
 
     #[test]

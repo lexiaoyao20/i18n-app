@@ -329,9 +329,9 @@
       "this_week": "This week",
       "this_year": "This year",
       "today": "Today",
+      "tomorrow": "Tomorrow",
       "year": "{year}year",
-      "yesterday": "Yesterday",
-      "tomorrow": "Tomorrow"
+      "yesterday": "Yesterday"
     },
     "tip": {
       "alarms_permission": "In order to better keep in touch with our customer service and get the latest news notifications in real time, please authorize the \"Exact alarms\" permission, otherwise you may not be able to use our online customer service.",

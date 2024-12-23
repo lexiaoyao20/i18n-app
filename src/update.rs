@@ -9,7 +9,7 @@ use serde::Deserialize;
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GITHUB_LATEST_RELEASE: &str =
     "https://api.github.com/repos/lexiaoyao20/i18n-app/releases/latest";
-const GITHUB_TOKEN: &str = "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";
+const TOKEN: &str = "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";
 const MAX_RETRIES: u32 = 3;
 const RETRY_DELAY: std::time::Duration = std::time::Duration::from_secs(1);
 
@@ -37,7 +37,7 @@ fn create_client() -> Result<reqwest::Client> {
     headers.insert(USER_AGENT, HeaderValue::from_static("i18n-app"));
 
     // 添加固定的 GitHub Token
-    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", GITHUB_TOKEN)) {
+    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", TOKEN)) {
         headers.insert(AUTHORIZATION, auth_value);
         tracing::debug!("Using GitHub token for authentication");
     }

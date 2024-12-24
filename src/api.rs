@@ -167,7 +167,7 @@ pub async fn get_translation_config(config: &Config) -> Result<LongPollingRespon
 
     let response = match client
         .post(&url)
-        .header("preview", "1")
+        .header("preview", &config.preview_mode)
         .json(&request_body)
         .send()
         .await
@@ -249,19 +249,33 @@ pub async fn download_translation(
     file_name: &str,
 ) -> Result<String> {
     let client = Client::new();
-    let url = format!(
-        "{}/{}/{}",
-        config.host,
-        file_group
-            .path_prefix
-            .trim_start_matches('/')
-            .trim_end_matches('/'),
-        file_name
-    );
+
+    // 检查 path_prefix 是否已包含完整的 URL
+    let url = if file_group.path_prefix.starts_with("http://")
+        || file_group.path_prefix.starts_with("https://")
+    {
+        format!(
+            "{}/{}",
+            file_group.path_prefix.trim_end_matches('/'),
+            file_name
+        )
+    } else {
+        format!(
+            "{}/{}/{}",
+            config.host.trim_end_matches('/'),
+            file_group.path_prefix.trim_matches('/'),
+            file_name
+        )
+    };
 
     tracing::info!("Downloading translation from: {}", url);
 
-    let response = match client.get(&url).header("preview", "1").send().await {
+    let response = match client
+        .get(&url)
+        .header("preview", &config.preview_mode)
+        .send()
+        .await
+    {
         Ok(resp) => resp,
         Err(e) => {
             tracing::error!("Failed to send request to [{}]: {}", url, e);
@@ -318,6 +332,7 @@ mod tests {
                 "productId": 1,
                 "versionNo": "1.0.0",
                 "baseLanguage": "en-US",
+                "previewMode": "1",
                 "include": ["*.json"],
                 "exclude": []
             }}"#,

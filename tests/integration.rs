@@ -18,6 +18,7 @@ fn create_test_config(server_url: &str) -> Result<(TempDir, Config)> {
             "productId": 1,
             "versionNo": "1.0.0",
             "baseLanguage": "en-US",
+            "previewMode": "1",
             "include": ["*.json"],
             "exclude": []
         }}"#,

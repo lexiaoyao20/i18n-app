@@ -45,6 +45,7 @@ i18n-app init
   "productId": 1,
   "versionNo": "1.0.0",
   "baseLanguage": "en-US",
+  "previewMode": "1",
   "include": [
     "languages/*.json"
   ],
@@ -59,6 +60,7 @@ i18n-app init
 - `productId`: 产品 ID
 - `versionNo`: 版本号
 - `baseLanguage`: 基准语言（用于比对其他语言的翻译完整性）
+- `previewMode`: 预览模式开关（"1"开启，"0"关闭）
 - `include`: 要包含的文件匹配模式（支持 glob 语法）
 - `exclude`: 要排除的文件匹配模式（支持 glob 语法）
 

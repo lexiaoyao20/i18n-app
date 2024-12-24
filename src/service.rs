@@ -693,6 +693,7 @@ mod tests {
             product_id: 1,
             version_no: "1.0.0".to_string(),
             base_language: "en-US".to_string(),
+            preview_mode: "1".to_string(),
             include: vec![],
             exclude: vec![],
         };

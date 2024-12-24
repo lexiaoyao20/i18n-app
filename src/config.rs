@@ -18,6 +18,8 @@ pub struct Config {
     pub version_no: String,
     #[serde(rename = "baseLanguage")]
     pub base_language: String,
+    #[serde(rename = "previewMode")]
+    pub preview_mode: String,
     pub include: Vec<String>,
     pub exclude: Vec<String>,
 }
@@ -31,6 +33,7 @@ impl Default for Config {
             product_id: 1,
             version_no: "1.0.0".to_string(),
             base_language: "en-US".to_string(),
+            preview_mode: "1".to_string(),
             include: vec![],
             exclude: vec![],
         }
@@ -76,6 +79,12 @@ impl Config {
         Self::ensure_config_exists()?;
         Self::from_file(DEFAULT_CONFIG_FILE)
     }
+
+    /// 获取 GitHub Token
+    pub fn get_github_token() -> String {
+        // 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
+        "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".to_string()
+    }
 }
 
 #[cfg(test)]
@@ -96,6 +105,7 @@ mod tests {
             "productId": 1,
             "versionNo": "1.0.0",
             "baseLanguage": "en-US",
+            "previewMode": "1",
             "include": ["*.json"],
             "exclude": []
         }"#;
@@ -108,6 +118,7 @@ mod tests {
         assert_eq!(config.product_code, "test");
         assert_eq!(config.product_id, 1);
         assert_eq!(config.base_language, "en-US");
+        assert_eq!(config.preview_mode, "1");
 
         Ok(())
     }

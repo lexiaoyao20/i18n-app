@@ -1,4 +1,5 @@
-use anyhow::Result;
+use crate::config::Config;
+use anyhow::{anyhow, Context, Result};
 use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, USER_AGENT};
@@ -9,7 +10,6 @@ use serde::Deserialize;
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GITHUB_LATEST_RELEASE: &str =
     "https://api.github.com/repos/lexiaoyao20/i18n-app/releases/latest";
-const TOKEN: &str = "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";
 const MAX_RETRIES: u32 = 3;
 const RETRY_DELAY: std::time::Duration = std::time::Duration::from_secs(1);
 
@@ -36,10 +36,11 @@ fn create_client() -> Result<reqwest::Client> {
     );
     headers.insert(USER_AGENT, HeaderValue::from_static("i18n-app"));
 
-    // 添加固定的 GitHub Token
-    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", TOKEN)) {
+    // 使用内置的加密 token
+    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", Config::get_github_token()))
+    {
         headers.insert(AUTHORIZATION, auth_value);
-        tracing::debug!("Using GitHub token for authentication");
+        tracing::debug!("Using embedded GitHub token for authentication");
     }
 
     Ok(reqwest::Client::builder()
@@ -114,20 +115,47 @@ async fn check_update_with_retry() -> Result<Option<GithubRelease>> {
 }
 
 async fn check_update_internal(client: &reqwest::Client) -> Result<Option<GithubRelease>> {
-    let current = Version::parse(CURRENT_VERSION)?;
+    let current = Version::parse(CURRENT_VERSION).context("Failed to parse current version")?;
 
-    let latest: GithubRelease = client
+    let response = client
         .get(GITHUB_LATEST_RELEASE)
         .send()
-        .await?
-        .json()
-        .await?;
+        .await
+        .context("Failed to fetch latest release")?;
 
-    let latest_version = Version::parse(latest.tag_name.trim_start_matches('v'))?;
+    if !response.status().is_success() {
+        let status = response.status();
+        let text = response.text().await.unwrap_or_default();
+        return Err(anyhow!(
+            "GitHub API request failed: status={}, body={}",
+            status,
+            text
+        ));
+    }
+
+    let latest: GithubRelease = response
+        .json()
+        .await
+        .context("Failed to parse GitHub release response")?;
+
+    let latest_version = Version::parse(latest.tag_name.trim_start_matches('v'))
+        .context("Failed to parse latest version")?;
+
+    tracing::debug!(
+        "Version check: current={}, latest={}",
+        current,
+        latest_version
+    );
 
     if latest_version > current {
+        tracing::info!(
+            "New version {} is available (current: {})",
+            latest_version,
+            current
+        );
         Ok(Some(latest))
     } else {
+        tracing::debug!("Current version {} is up to date", current);
         Ok(None)
     }
 }
@@ -173,7 +201,11 @@ pub async fn update() -> Result<bool> {
 
 async fn update_internal() -> Result<bool> {
     if let Some(release) = check_update().await? {
-        tracing::info!("发现新版本 {}，正在更新...", release.tag_name);
+        tracing::info!(
+            "开始更新到版本 {} (当前版本: {})",
+            release.tag_name,
+            CURRENT_VERSION
+        );
 
         let client = create_client()?;
 
@@ -183,7 +215,8 @@ async fn update_internal() -> Result<bool> {
             "https://github.com/lexiaoyao20/i18n-app/raw/main/install.sh",
             "下载安装脚本",
         )
-        .await?;
+        .await
+        .context("下载安装脚本失败")?;
 
         // 创建临时文件来存储安装脚本
         let mut temp_file = tempfile::NamedTempFile::new()?;
@@ -210,7 +243,7 @@ async fn update_internal() -> Result<bool> {
             anyhow::bail!("更新失败，请手动更新");
         }
     } else {
-        tracing::info!("当前已是最新版本");
+        tracing::info!("当前版本 {} 已是最新版本", CURRENT_VERSION);
         Ok(false)
     }
 }

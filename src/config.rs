@@ -81,9 +81,30 @@ impl Config {
     }
 
     /// 获取 GitHub Token
-    pub fn get_github_token() -> String {
-        // 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
-        "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".to_string()
+    pub fn get_github_token() -> Option<String> {
+        // 获取用户主目录
+        if let Some(home_dir) = dirs::home_dir() {
+            // 构建 ~/.config/i18n-app/config.toml 路径
+            let config_path = home_dir
+                .join(".config")
+                .join("i18n-app")
+                .join("config.toml");
+
+            // 读取并解析配置文件
+            if let Ok(content) = std::fs::read_to_string(config_path) {
+                if let Ok(config) = content.parse::<toml::Table>() {
+                    if let Some(github) = config.get("github") {
+                        if let Some(token) = github.get("token") {
+                            if let Some(token_str) = token.as_str() {
+                                return Some(token_str.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        None
     }
 }
 

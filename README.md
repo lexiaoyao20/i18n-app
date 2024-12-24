@@ -29,6 +29,8 @@
 
 ## 配置
 
+### 基本配置
+
 首次使用时，需要初始化配置文件：
 
 ```bash
@@ -53,7 +55,26 @@ i18n-app init
 }
 ```
 
-配置说明：
+### GitHub Token 配置（可选）
+
+为了避免 GitHub API 请求限制（未认证每小时 60 次，认证后 5000 次），可以配置 GitHub Token：
+
+1. 创建配置文件：
+```bash
+mkdir -p ~/.config/i18n-app
+```
+
+2. 编辑 `~/.config/i18n-app/config.toml`，添加以下内容：
+```toml
+[github]
+token = "your_github_token"
+```
+
+如果不配置 token，程序仍然可以正常工作，但本应用自动更新会受到 API 请求限制。
+
+### 配置说明
+
+基本配置：
 - `host`: API 服务器地址
 - `subSystemName`: 子系统名称
 - `productCode`: 产品代码

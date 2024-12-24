@@ -36,11 +36,14 @@ fn create_client() -> Result<reqwest::Client> {
     );
     headers.insert(USER_AGENT, HeaderValue::from_static("i18n-app"));
 
-    // 使用内置的加密 token
-    if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", Config::get_github_token()))
-    {
-        headers.insert(AUTHORIZATION, auth_value);
-        tracing::debug!("Using embedded GitHub token for authentication");
+    // 尝试获取 GitHub Token
+    if let Some(token) = Config::get_github_token() {
+        if let Ok(auth_value) = HeaderValue::from_str(&format!("Bearer {}", token)) {
+            headers.insert(AUTHORIZATION, auth_value);
+            tracing::debug!("Using configured GitHub token for authentication");
+        }
+    } else {
+        tracing::debug!("No GitHub token configured, using rate-limited mode");
     }
 
     Ok(reqwest::Client::builder()
@@ -72,7 +75,14 @@ async fn check_rate_limit(client: &reqwest::Client) -> Result<()> {
     tracing::debug!("GitHub API rate limit: {}/{} remaining", remaining, limit);
 
     if remaining < 10 {
-        tracing::warn!("GitHub API 调用次数即将用尽，剩余：{}/{}", remaining, limit);
+        if Config::get_github_token().is_none() {
+            tracing::warn!(
+                "GitHub API 调用次数即将用尽（{}），建议配置 token 以提高限制。\n配置方法：创建文件 ~/.config/i18n-app/config.toml 并添加：\n[github]\ntoken = \"your_token\"",
+                remaining
+            );
+        } else {
+            tracing::warn!("GitHub API 调用次数即将用尽：{}/{}", remaining, limit);
+        }
     }
 
     Ok(())

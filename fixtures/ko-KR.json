@@ -2,6 +2,8 @@
   "accounts": {
     "balance": {
       "comment": "논평",
+      "referrence": "참고자료",
+      "sort_amount": "양",
       "sort_time": "날짜",
       "type": "유형",
       "type_adjustment": "조정",
@@ -13,10 +15,13 @@
       "type_send": "보내다",
       "type_swaps": "Swaps",
       "type_transaction": "거래",
+      "type_withdrawal": "철수",
       "type_withdrawal_refund": "출금환급"
     },
     "common": {
-      "label_last_trade": "최근 거래"
+      "label_last_trade": "최근 거래",
+      "role_follower": "Follower",
+      "role_signal": "Signal provider"
     },
     "main": {
       "tab_limit": "한계",
@@ -26,6 +31,9 @@
       "title": "계정"
     },
     "more": {
+      "journal": {
+        "label_period": "기간"
+      },
       "label_journal": "신문",
       "label_new": "New",
       "summary": {
@@ -34,6 +42,7 @@
         "label_account_type": "계정 유형",
         "label_adjustment": "Adjustment",
         "label_avg_loss": "평균 손실",
+        "label_avg_profit": "평균 이익",
         "label_cent_volume": "Volume(cent lots)",
         "label_created": "만들어진",
         "label_credit": "신용 시설",
@@ -50,6 +59,7 @@
         "label_swap_free": "스왑 프리",
         "label_time_zone": "거래 서버 시간대",
         "label_total_credit": "총 신용 시설",
+        "label_total_profit": "실현 손익",
         "label_trades": "거래",
         "label_unrealized_pl": "Profit",
         "label_volume": "볼륨(lots)",
@@ -58,15 +68,19 @@
         "tip_floating_pl": "커미션 및 스왑을 제외한 오픈 포지션의 미실현 손익",
         "tip_negative_balance": "오늘 기준으로 총 마이너스 잔고 보호.",
         "tip_profit": "커미션 및 스왑을 포함한 오픈 포지션의 미실현 손익입니다.",
+        "tip_swap_free": "产상품翻译补充",
         "tip_total_credit": "오늘 기준으로 예치된 총 신용 시설입니다.",
         "tip_total_profit": "커미션과 스왑을 포함한 총 마감 손익입니다.",
         "tip_trades": "마감된 총 거래 수입니다.",
+        "tip_volume": "총 거래량 마감",
         "title": "요약"
       },
       "title_balance": "균형",
       "title_deposit_details": "입금내역",
+      "title_history": "역사",
       "title_password": "비밀번호",
       "title_performance": "성능",
+      "title_statement": "성명",
       "title_swap": "교환",
       "title_transfer_record": "이체기록",
       "title_withdrawal_details": "출금내역"
@@ -86,6 +100,7 @@
       "credit_deposit": "신용예금",
       "credit_withdraw": "신용 인출",
       "desc_total_profit": "마감 손익 통계",
+      "desc_total_volume": "마감된 거래 통계(로트)",
       "filter_by_symbol": "기기별 주문",
       "history_closed_pl": "마감손익",
       "label_at": "~에",
@@ -93,6 +108,8 @@
       "label_closed_trades": "마감된 거래",
       "label_deal": "거래",
       "label_deals": "거래",
+      "label_limit_time": "오픈 시간",
+      "label_loss": "상실",
       "label_market_rate": "시세",
       "label_open_price": "열려있는",
       "label_open_time": "오픈 시간",
@@ -159,6 +176,7 @@
       "label_swap_free": "Swap-free",
       "label_trading_activity": "Current trading activity",
       "tab_swap_free": "Swap Free",
+      "title": "Swap Free",
       "type_advanced": "Advanced",
       "type_regular": "Regular"
     }
@@ -173,6 +191,8 @@
       "interrupt_desc": "계좌 개설에 관심을 가져주셔서 감사합니다. dcfx labuan는 거래를 시작하기 위한 온라인 계좌 개설 신청서를 제공합니다.",
       "interrupt_title": "계좌 개설이 거의 완료되었습니다",
       "kyc_passed_desc": "축하합니다. 프로필이 확인되었습니다. 지금 거래 계좌 추가를 시작해 보세요.",
+      "kyc_passed_title": "계정 만들기",
+      "open_desc": "계좌 개설에 관심을 가져주셔서 감사합니다. dcfx labuan은 거래를 시작하기 위한 온라인 계좌 개설 양식을 제공합니다.",
       "open_title": "계좌 개설",
       "review_failed": "계좌 개설 실패",
       "review_failed_desc": "귀하의 계좌 개설 신청이 성공적으로 이루어지지 않았음을 알려드리게 되어 유감입니다.",
@@ -182,6 +202,7 @@
       "status_disabled": "장애가 있는",
       "status_expired": "만료됨",
       "status_read_only": "읽기 전용",
+      "trading_desc": "결제 대기 중인 입금 주문이 있습니다. 3시간 26분 이내에 입금해주세요.",
       "trading_title": "입금 알림",
       "under_review_desc": "귀하의 계좌 개설 신청서가 접수되었습니다. 실사가 완료되는 대로 승인될 예정입니다.",
       "under_review_title": "계좌 개설 진행 중"
@@ -200,10 +221,12 @@
     "app_name": "Acts",
     "app_update": {
       "button_ignore": "무시하다",
+      "button_update": "업데이트",
       "title": "최신 업데이트 기능",
       "version_info": "새 버전 업데이트"
     },
     "appreview": {
+      "alert_button_cancel": "고맙지 만 사양 할게",
       "alert_button_confirm": "dcfx labuan 평가",
       "alert_content": "dcfx labuan를 즐겨 사용하신다면 잠시 시간을 내어 평가해 주시겠습니까? 1분도 채 걸리지 않습니다. 지원해 주셔서 감사합니다.",
       "alert_title": "dcfx labuan 평가"
@@ -212,6 +235,7 @@
       "back": "Back",
       "cancel": "취소",
       "choose_photo": "앨범에서 선택",
+      "clear": "분명한",
       "clear_all": "모두 지우기",
       "complete": "완벽한",
       "confirm": "확인하다",
@@ -247,6 +271,7 @@
       "closed_pl": "마감손익",
       "commission": "수수료",
       "credit": "신용 거래",
+      "deposit": "보증금",
       "dp": "DP",
       "eq": "EQ",
       "equity": "형평성",
@@ -277,18 +302,23 @@
       "swap": "교환",
       "symbol": "상징",
       "total": "총",
+      "total_profit": "실현 손익",
       "tp": "T/P",
       "usc": "USC",
       "usd": "USD",
+      "utc": "UTC",
       "vol": "볼륨",
       "volume": "용량",
+      "wallet": "지갑",
       "wd": "WD",
       "website_link": "웹 사이트 링크",
       "withdrawal": "철수"
     },
     "network": {
       "error_retry": "네트워크 오류. 나중에 다시 시도하십시오.",
-      "please_reload": "Please reload"
+      "load_failed": "Load failed",
+      "please_reload": "Please reload",
+      "request_failed": "요청이 실패했습니다. 나중에 다시 시도하십시오."
     },
     "placeholder": {
       "search": "찾다"
@@ -340,7 +370,9 @@
       "load_failed": "로드에 실패했습니다. 다시 시도하려면 클릭하세요.",
       "login_expired": "로그인이 만료되었습니다. 다시 로그인하십시오.",
       "no_access_photo_library": "앨범의 사진에 액세스할 수 없습니다.",
+      "no_access_take_photo": "Unable to access take photos.",
       "not_install_appstore": "아직 앱 스토어를 설치하지 않았습니다.",
+      "permission_deny_message_photo": "Acts 은 프로필 사진을 업로드하거나 증거를 제공하기 위해 사진 라이브러리 및 카메라에 대한 액세스 권한이 필요합니다.",
       "permissions": "dcfx 는 더 나은 서비스를 제공하기 위해 적절한 권한을 설정해야 합니다. 확인을 클릭하십시오-권한 옵션을 선택하십시오",
       "photo_load_failure": "불러 오지 못했습니다",
       "photo_show_original": "View original photo",
@@ -401,6 +433,7 @@
         "transfer_out": "전송된",
         "walletIn": "환승",
         "walletOut": "다른 곳으로 이전",
+        "withdraw_cancel": "취소취소",
         "zero": "영"
       },
       "filter": {
@@ -413,6 +446,7 @@
       },
       "followers": {
         "account_title": "카피 트레이더",
+        "chart_highlight_title": "카피 트레이더",
         "chart_loss": "상실",
         "chart_profit": "이익",
         "copy_amount": "복사량",
@@ -421,8 +455,10 @@
         "tab_history": "역사"
       },
       "followingAccount": {
+        "account_following": "카피 트레이더",
         "amount_copy": "복사량",
         "browse_title": "신호 제공자 찾아보기",
+        "by_title": "~에 의해",
         "chart_label_title": "카피 트레이딩",
         "collect_failed": "수집 실패",
         "collect_success": "즐겨찾기",
@@ -439,6 +475,7 @@
         "history_follows": "카피 트레이딩 내역",
         "investment_title": "투자",
         "max_loss": "최대 손실",
+        "max_profit": "최대 이익",
         "min_investment": "최소 투자",
         "overview_day": "주",
         "overview_days": "주",
@@ -470,12 +507,14 @@
         "avg_loss": "평균 손실",
         "avg_profit": "평균 이익",
         "avg_time": "평균 기간",
+        "avg_title": "평균 듀레이션(이익 거래/손실 거래)",
         "balance_equity": "EQ",
         "balance_legend": "BAL",
         "button_more": "더",
         "close_profit_loss": "마감 손익",
         "deposit_desc": "보증금",
         "deposit_legend": "DP",
+        "direct_long": "긴",
         "duration": "지속",
         "equity_balance": "자기자본/잔액",
         "floatPL_loss": "손실",
@@ -491,7 +530,9 @@
         "short_All": "짧은",
         "symbol_noun": "상징",
         "timezone": "서버 시간대",
+        "top_instrument": "상징",
         "total_profit": "실현 손익",
+        "trades": "거래",
         "trading_weeks": "지속",
         "weeks": "주",
         "win_rate": "수익성",
@@ -499,6 +540,7 @@
       },
       "profile": {
         "original": "원래의",
+        "restricts_subtitle": "팔로우 후 보실 수 있습니다",
         "restricts_title": "신호로 인해 시청이 제한됩니다.",
         "show_less": "간략히 표시",
         "show_more": "자세히보기",
@@ -541,6 +583,7 @@
         "provider_desc": "평판 구축 * 카피 트레이더 확보 * 이익 공유",
         "provider_title": "신호 제공자가 되어 보세요",
         "start_title": "시작",
+        "trade_activated_title": "복사 거래가 설정되지 않음",
         "trade_detail_title": "신호 제공자를 선택하세요. 그들의 거래를 복사하십시오. 거래를 더 쉽게 만드세요."
       },
       "signal": {
@@ -552,7 +595,9 @@
         "section_result": "{count} 결과",
         "sort": {
           "copy_amount": "복사량",
+          "copy_profit": "이익 복사",
           "copy_traders": "Copy-trading",
+          "equity": "형평성",
           "maxDD": "MaxDD",
           "min_invesment": "최소 투자",
           "profit_sharing_ratio": "이익배분비율",
@@ -567,6 +612,7 @@
     "modify_failed_retry": "수정에 실패했습니다. 나중에 다시 시도하십시오.",
     "page_left_title": "카피 트레이딩",
     "search": {
+      "nav_search_title": "신호 제공자 검색",
       "no_result_detail": "입력한 용어로 검색된 결과가 없습니다. 다른 검색어를 사용해 보세요.",
       "no_result_title": "&{content}&에 대한 검색결과가 없습니다.",
       "no_search_history": "기록 검색 없음",
@@ -590,6 +636,7 @@
     "instant": {
       "account": "계정",
       "always_valid": "항상 유효합니다",
+      "balance": "보상 잔액",
       "competition_time": "Competition period",
       "finished": "완성된",
       "participate": "참가하다",
@@ -620,6 +667,7 @@
       "symbolDetail_tab": "소식"
     },
     "promotion_title": "홍보",
+    "redeemed_label_title": "구속됨",
     "request": {
       "error_title": "오류"
     },
@@ -628,6 +676,7 @@
       "recommend_following_count_title": "카피 트레이더",
       "recommend_tips": "더 쉽고 빠르게 거래 수익을 높이세요.",
       "recommend_title": "카피 트레이딩",
+      "recommend_weeks": "주",
       "total_profit": "실현 손익"
     },
     "tip_ib_agreement": "You have been upgraded to an agent. To activate your rebate interest, please sign the IB agreement.",
@@ -644,6 +693,7 @@
       "chat_connect_status_reconnect": "다시 연결하려면 클릭하세요.",
       "group_chat": "그룹 채팅",
       "label_admin": "관리자",
+      "label_owner": "소유자",
       "network_error": "네트워크 오류",
       "save_success": "성공적으로 저장 되었음",
       "shared_successfully": "성공적으로 공유됨",
@@ -660,6 +710,7 @@
         "title": "친구를 초대하세요"
       },
       "no_contacts": "아직 연락이 없습니다",
+      "permission_save_contacts": "Allow Access to your mobile phone contacts so you can share with them more easily.",
       "pop_button_cancel": "Don't Allow",
       "pop_title": "\"Acts\" Would Like to Access Your Contacts",
       "result": "결과",
@@ -687,6 +738,7 @@
       "chat_input_hint": "메시지",
       "chat_message_at_me": "[당신이 언급되었습니다]",
       "chat_message_content_draft": "[초안]",
+      "chat_message_recall": "{user}님이 메시지를 회수했습니다.",
       "chat_message_recall_mine": "당신은 메시지를 회상했다..",
       "chat_recall": "상기하다",
       "chat_reply": "회신하다",
@@ -732,15 +784,18 @@
         "placeholder_intro": "말 좀...",
         "placeholder_name": "그룹 이름 지정",
         "take_photo": "사진을 찍다",
-        "tip_modifying": "수정 중..."
+        "tip_modifying": "수정 중...",
+        "title": "그룹 정보 수정"
       },
       "info": {
         "button_disband": "그룹을 해산",
         "button_left": "그룹을 떠났다",
+        "mute": "알림 음소거",
         "pin_group": "그룹 고정",
         "qr_code": "그룹 QR 코드",
         "tip_disband_group": "그룹을 해산하시겠습니까?",
-        "tip_exit_group": "삭제하고 종료하면 이 그룹 채팅에서 더 이상 메시지를 받지 않습니다."
+        "tip_exit_group": "삭제하고 종료하면 이 그룹 채팅에서 더 이상 메시지를 받지 않습니다.",
+        "title": "그룹"
       },
       "join": {
         "button_apply": "적용하다",
@@ -769,6 +824,7 @@
     "guide_title": "우리와 파트너가 되기 위한 최적의 시간!",
     "label_real_name": "실제 이름:",
     "main": {
+      "placeholder_search": "이름, 휴대폰, 이메일, UID 검색",
       "tab_contacts": "콘택트 렌즈",
       "tab_live_chat": "라이브 채팅"
     },
@@ -781,8 +837,10 @@
       "unread_messages": "{unread count} 메시지"
     },
     "search": {
+      "clear_all": "모두 지우기",
       "contact_no_result": "{key}에 대한 검색결과가 없습니다.",
       "contact_result": "결과",
+      "contact_result_desc": "입력한 용어로 검색된 결과가 없습니다. 다른 검색어를 사용해 보세요.",
       "contacts_sort_a_z": "A-Z",
       "history": "Search history",
       "no_history": "기록 검색 없음"
@@ -801,12 +859,14 @@
       "desc_pin_messages": "활성화되면 이 고정된 메시지가 모든 고객에게 표시됩니다.",
       "mute_notification": "알림 음소거",
       "pin_message": "메시지 고정",
+      "pinned_message_desc": "Once enabled, this pinned message will be displayed to all your customers",
       "pinned_message_hint": "Please enter",
       "pinned_message_title": "Pin message",
       "profile": "프로필",
       "remark": "주목",
       "report": "보고서",
       "sound": "소리",
+      "sticky_top": "위에 끈적끈적",
       "tip_block_message": "dcfx labuan에서 @{user} 메시지 수신 중지",
       "tip_delete_chat": "채팅 기록을 삭제하시겠습니까?",
       "tip_message_pinned": "메시지가 고정되었습니다",
@@ -820,7 +880,9 @@
       "title_enter_to_send": "보내려면 입력하세요.",
       "title_message_notification": "메시지 알림",
       "title_pin_messages": "메시지 고정",
+      "top_message_pinned_cancel": "고정된 메시지가 사용 중지되었습니다.",
       "top_message_pinned_success": "할 수있게하다",
+      "unblock": "차단 해제",
       "unpick": "선택 해제",
       "vibration": "진동",
       "welcome_message_content": "안녕하세요, Acts에 오신 것을 환영합니다! 내가 할 수 있는 한 당신을 도와줄 수 있어요",
@@ -857,6 +919,7 @@
     },
     "common": {
       "button_get": "얻다",
+      "button_login": "로그인",
       "button_next": "다음 단계",
       "button_register": "가입하기",
       "button_resend": "재전송",
@@ -880,7 +943,8 @@
     },
     "forget_password": {
       "content": "휴대폰 번호 또는 이메일 주소를 통해 인증 코드를 받으십시오.",
-      "label_via": "을 통해"
+      "label_via": "을 통해",
+      "title": "비밀번호를 잊으 셨나요"
     },
     "guide": {
       "button_login": "로그인",
@@ -909,6 +973,7 @@
       "label_attention_whatsapp": "WhatsApp 메시지를 확인하려면 주의하세요.",
       "send_to_phone": "문자를 보내다",
       "send_to_voice": "Send to Voice",
+      "send_to_whatsapp": "WhatsApp으로 보내기",
       "send_vcode_via_phone_call": "We will send a verification code via Phone to",
       "send_vcode_via_phone_message": "SMS를 통해 인증 코드를 보내드립니다.",
       "send_vcode_via_whatsapp": "WhatsApp을 통해 인증 코드를 보내드리겠습니다.",
@@ -929,7 +994,8 @@
       "repet_password_not_match": "반복되는 비밀번호가 일치하지 않습니다.",
       "reset_title": "암호를 재설정",
       "set_content": "비밀번호 설정은 휴대폰 번호 및 이메일 주소 로그인에 적용됩니다.",
-      "set_title": "로그인 비밀번호 설정"
+      "set_title": "로그인 비밀번호 설정",
+      "tip_change_success": "비밀번호를 성공적으로 변경했습니다."
     },
     "quick": {
       "button_another_account": "다른 계정으로 로그인",
@@ -960,6 +1026,7 @@
       "label_sell_stop": "Sell stop",
       "label_sell_stop_limit": "Sell stop limit",
       "label_stop_loss": "손절매",
+      "label_take_profit": "이익을 취하다",
       "label_volume": "용량",
       "label_watchlist": "관심 목록",
       "placeholder_set": "세트",
@@ -972,6 +1039,7 @@
       "symbol_type_indices": "지수",
       "symbol_type_metals": "Metals",
       "symbol_type_others": "Others",
+      "symbol_type_shares": "주식",
       "symbol_type_stocks": "Stocks",
       "symbol_type_usstocks": "USStocks",
       "tip_account_disabled": "귀하의 계정이 비활성화되었습니다. 도움이 필요하면 고객 서비스에 문의하십시오.",
@@ -986,6 +1054,7 @@
       "total_profit": "실현 손익",
       "weekday_friday": "금요일",
       "weekday_monday": "월요일",
+      "weekday_saturday": "토요일",
       "weekday_sunday": "일요일",
       "weekday_thursday": "목요일",
       "weekday_tuesday": "화요일",
@@ -993,6 +1062,7 @@
     },
     "main": {
       "demo_server_name": "dcfx labuan Ltd",
+      "label_account": "계정",
       "label_current_price": "현재 가격",
       "title": "시장",
       "view_all_accounts": "모든 계정 보기"
@@ -1037,6 +1107,7 @@
       "swapmode_in_points": "인 포인트",
       "tip_add_failed": "추가 실패",
       "tip_demo_account_expired": "거래에 대한 완전한 경험을 위해 실제 계정을 개설하십시오.",
+      "tip_limit_price": "지정가가 현재 가격에서 최소 {value} 떨어져 있습니다.",
       "tip_price_range": "{below} 미만 또는 {above} 초과",
       "tip_reapply_demo_failed": "데모 계정 생성에 실패했습니다.",
       "tip_reapply_demo_success": "데모 계정이 성공적으로 생성되었습니다.",
@@ -1047,6 +1118,7 @@
       "title_limit": "한계",
       "title_limit_order": "지정가 주문",
       "title_market": "시장",
+      "title_market_order": "시장가 주문",
       "title_notice": "알아 채다",
       "title_quote_session": "견적 세션",
       "title_sorry": "죄송합니다!",
@@ -1067,11 +1139,13 @@
       "type": "Type"
     },
     "common": {
+      "ac": "에어컨",
       "created": "만들어진",
       "since": "부터",
       "status": ""
     },
     "dashboard": {
+      "balance": "Balance",
       "balance_tips": "balance tips",
       "deposit_withdrawal": "Deposit&Withdrawal",
       "legend": {
@@ -1092,6 +1166,7 @@
       "registration": "New Registration",
       "symbols": "Popular symbols",
       "symbols_tips": "symbols tips",
+      "verified": "Verified",
       "volume": "Volume"
     },
     "funds": {
@@ -1116,7 +1191,8 @@
       "homepage_title": "친구를 초대하여 보상을 받으세요!",
       "homepage_title_description": "아래 링크를 친구에게 보내주시면 더 많은 보상을 받으실 수 있습니다.",
       "popc_title": "친구를 초대하세요",
-      "share_des": "이 링크를 친구에게 보내세요. 가입 즉시 보상을 받으실 수 있습니다."
+      "share_des": "이 링크를 친구에게 보내세요. 가입 즉시 보상을 받으실 수 있습니다.",
+      "unlock_tips": "더 많은 혜택을 받으려면 멤버십을 업그레이드하세요."
     },
     "main": {
       "amount": "Amount",
@@ -1172,9 +1248,11 @@
         "verification": "Verification",
         "verified": "Verified"
       },
+      "guide_title": "You are here: ",
       "introduction": {
         "content1": "데이터는 모든 추천을 포함한 통계와 함께 계층적으로 표시됩니다.",
         "content2": "데이터는 병렬로 표시되며 통계에는 모든 추천이 포함됩니다.",
+        "content3": "데이터는 병렬로 표시되며 통계는 사용자의 개인 데이터만 표시합니다.",
         "title": "데이터 표시 구조",
         "title1": "트리 구조",
         "title2": "병렬 구조",
@@ -1182,6 +1260,7 @@
       },
       "label_tier": "층",
       "list_introduction": "데이터 표시 구조",
+      "list_tileOwner_title": "병렬 구조(사용자 개인 데이터만 계산)",
       "list_tile_title": "병렬 구조",
       "list_tree_title": "트리 구조",
       "statistics_list_top_tip": "우리는 세 가지 데이터 구조를 제공합니다:"
@@ -1197,6 +1276,7 @@
     "volume": {
       "label_account": "계정",
       "label_sl_tp": "SL / TP",
+      "label_volume_of_time": "{volume}의 볼륨",
       "label_volume_of_today": "오늘의 볼륨"
     }
   },
@@ -1240,12 +1320,15 @@
       "label_top": "맨 위",
       "label_views": "견해",
       "tab_all": "모두",
+      "tab_analysis": "Analyst Views",
       "tab_calendar": "달력",
       "tab_live": "살다",
       "tab_market_analysis": "소식",
       "tab_newsflash": "속보",
+      "tab_signal": "신호",
       "tab_video": "동영상",
-      "title": "통찰력"
+      "title": "통찰력",
+      "title_category": "내 카테고리"
     },
     "newsflash": {
       "button_recently": "최근에",
@@ -1296,12 +1379,14 @@
       "title": "다음에 대한 알림 켜기:"
     },
     "system_message": {
+      "filter_account": "계정",
       "filter_copy_trade": "카피 트레이드",
       "filter_fund": "축적",
       "filter_marketing": "마케팅",
       "filter_member": "회원",
       "filter_trading": "거래"
-    }
+    },
+    "title": "공고"
   },
   "setting": {
     "account_type": "클라이언트",
@@ -1323,6 +1408,7 @@
     "im_notification_desc": "새 메시지를 수신하려면 활성화하세요.",
     "language": "언어",
     "language_button_done": "완료",
+    "latest_version": "최신 버전입니다.",
     "more": "더",
     "notification": {
       "lowVersion_push_tips": "시스템 &설정&-&알림&에서 수정하십시오.",
@@ -1331,12 +1417,15 @@
     "one_click_switch": "원클릭 거래",
     "one_click_trading_tip": "활성화되면 주문을 개시하거나 종료할 때 추가 정보가 필요하지 않습니다.",
     "one_click_trading_title": "One-click trading",
+    "personal_info": "개인의",
     "personal_info_sub": "신분증 또는 여권, 거주지, 휴대폰 번호, 이메일 주소를 확인하세요.",
     "profile": "프로필",
     "security": {
+      "delete_account": "계정 삭제",
       "not_verified": "Not verified",
       "password": "비밀번호",
       "password_content": "변화",
+      "pic": "프로필 사진",
       "region": "국가 혹은 지역",
       "security_title": "보안",
       "uid": "UID"
@@ -1350,6 +1439,7 @@
       "swap_pop_tip": "7일간의 스왑 자유 거래는 다음 12개 상품에 적용됩니다: XAGUSD, XAUUSD, AUDUSD, EURGBP, EURJPY, EURUSD, GBPJPY, GBPUSD, NZDUSD, USdcfx labuanAD, USdcfx labuanHF, USDJPY.",
       "title": "메뉴"
     },
+    "sign_out": "로그아웃",
     "sign_out_desc": "확실해?",
     "system_notification": "시스템 푸시 알림",
     "system_notification_desc": "계좌, 거래, 자금 및 프로모션 수신 가능",
@@ -1363,6 +1453,7 @@
     "trade_sound_switch": "소리",
     "trading_rules": "거래",
     "trading_rules_sub": "상품, 레버리지 및 마진 세부정보",
+    "transaction": "거래 경험",
     "transaction_desc": "귀하의 거래 및 자산",
     "version": "버전"
   }

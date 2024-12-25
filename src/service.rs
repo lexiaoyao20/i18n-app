@@ -343,27 +343,16 @@ impl TranslationService {
                         Ok(content) => {
                             let target_file =
                                 target_dir.join(format!("{}.json", group.language_code));
-                            // Parse the JSON string to a Value
-                            let json_value: serde_json::Value = serde_json::from_str(&content)?;
-                            // Extract the specific language content
-                            let lang_key = format!("languages/{}.json", group.language_code);
-                            if let Some(lang_content) = json_value.get(&lang_key) {
-                                // Pretty print the JSON with 2 spaces indentation
-                                let formatted_json = serde_json::to_string_pretty(lang_content)?;
-                                std::fs::write(&target_file, formatted_json)?;
-                                tracing::info!(
-                                    "Downloaded translation for {} to {}",
-                                    group.language_code,
-                                    target_file.display()
-                                );
-                                success_count += 1;
-                            } else {
-                                tracing::error!(
-                                    "No translation content found for language: {}",
-                                    group.language_code
-                                );
-                                failed_count += 1;
-                            }
+
+                            // 直接写入内容，因为内容已经在 download_translation 中处理过了
+                            std::fs::write(&target_file, content)?;
+
+                            tracing::info!(
+                                "Downloaded translation for {} to {}",
+                                group.language_code,
+                                target_file.display()
+                            );
+                            success_count += 1;
                         }
                         Err(e) => {
                             tracing::error!(
@@ -449,45 +438,38 @@ impl TranslationService {
                     match api::download_translation(&self.config, group, file_name).await {
                         Ok(content) => {
                             // 解析 JSON 内容
-                            let json_value: serde_json::Value = serde_json::from_str(&content)?;
-                            let lang_key = format!("languages/{}.json", lang_code);
+                            let remote_json: serde_json::Value = serde_json::from_str(&content)?;
 
-                            if let Some(remote_content) = json_value.get(&lang_key) {
-                                // 读取本地文件内容
-                                let local_content = std::fs::read_to_string(&target_path)
-                                    .with_context(|| {
-                                        format!("读取本地文件 {} 失败", target_path.display())
-                                    })?;
-                                let local_json: serde_json::Value =
-                                    serde_json::from_str(&local_content)?;
+                            // 读取本地文件内容
+                            let local_content = std::fs::read_to_string(&target_path)
+                                .with_context(|| {
+                                    format!("读取本地文件 {} 失败", target_path.display())
+                                })?;
+                            let local_json: serde_json::Value =
+                                serde_json::from_str(&local_content)?;
 
-                                // 打印差异信息
-                                self.print_json_diff(&local_json, remote_content, lang_code);
+                            // 打印差异信息
+                            self.print_json_diff(&local_json, &remote_json, lang_code);
 
-                                // 合并本地和远程内容
-                                let merged_content =
-                                    self.merge_json_content(&local_json, remote_content);
+                            // 合并本地和远程内容
+                            let merged_content = self.merge_json_content(&local_json, &remote_json);
 
-                                // 确保目标目录存在
-                                if let Some(parent) = target_path.parent() {
-                                    std::fs::create_dir_all(parent).with_context(|| {
-                                        format!("创建目录 {} 失败", parent.display())
-                                    })?;
-                                }
-
-                                // 写入合并后的内容
-                                let formatted_json = serde_json::to_string_pretty(&merged_content)?;
-                                std::fs::write(&target_path, formatted_json).with_context(
-                                    || format!("写入文件 {} 失败", target_path.display()),
-                                )?;
-
-                                tracing::info!("成功同步 {}", target_path.display());
-                                success_count += 1;
-                                break; // 找到并处理了文件后就跳出循环
-                            } else {
-                                tracing::error!("语言 {} 的翻译内容不存在", lang_code);
-                                failed_count += 1;
+                            // 确保目标目录存在
+                            if let Some(parent) = target_path.parent() {
+                                std::fs::create_dir_all(parent).with_context(|| {
+                                    format!("创建目录 {} 失败", parent.display())
+                                })?;
                             }
+
+                            // 写入合并后的内容
+                            let formatted_json = serde_json::to_string_pretty(&merged_content)?;
+                            std::fs::write(&target_path, formatted_json).with_context(|| {
+                                format!("写入文件 {} 失败", target_path.display())
+                            })?;
+
+                            tracing::info!("成功同步 {}", target_path.display());
+                            success_count += 1;
+                            break; // 找到并处理了文件后就跳出循环
                         }
                         Err(e) => {
                             tracing::error!("下载语言 {} 的翻译失败: {}", lang_code, e);

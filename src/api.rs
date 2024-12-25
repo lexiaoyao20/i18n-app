@@ -293,7 +293,6 @@ pub async fn download_translation(
     };
 
     tracing::debug!("Response status: {}", status);
-    // tracing::debug!("Response body: {}", text); // 太长了，不打印
 
     if !status.is_success() {
         tracing::error!(
@@ -309,7 +308,29 @@ pub async fn download_translation(
         ));
     }
 
-    Ok(text)
+    // 解析返回的 JSON
+    let json_value: serde_json::Value = serde_json::from_str(&text)?;
+
+    // 从配置文件的 include 模式中提取基础路径
+    let base_path = config
+        .include
+        .first()
+        .ok_or_else(|| anyhow!("No include patterns configured"))?
+        .replace("*.json", "");
+
+    // 构造完整的语言文件路径
+    let lang_path = format!("{}{}.json", base_path, file_group.language_code);
+
+    // 在所有键中查找匹配路径的键
+    let lang_content = json_value
+        .as_object()
+        .ok_or_else(|| anyhow!("Response is not a JSON object"))?
+        .iter()
+        .find(|(key, _)| key.ends_with(&lang_path))
+        .map(|(_, value)| value)
+        .ok_or_else(|| anyhow!("Language content not found in response"))?;
+
+    Ok(serde_json::to_string_pretty(lang_content)?)
 }
 
 #[cfg(test)]
@@ -464,25 +485,37 @@ mod tests {
         rt.block_on(async {
             let (_temp_dir, config) = create_test_config(&server.url())?;
 
+            // 创建一个模拟的 FileGroup
+            let file_group = FileGroup {
+                path_prefix: "test".to_string(),
+                language_code: "en-US".to_string(),
+                file_names: vec!["test.json".to_string()],
+            };
+
+            // 模拟服务器响应，使用新的 JSON 结构
+            let mock_response = r#"{
+                "/json/languages/en-US.json": {
+                    "test": {
+                        "key": "Test Value"
+                    }
+                }
+            }"#;
+
             let mock = server
                 .mock("GET", "/test/test.json")
                 .with_status(200)
                 .with_header("content-type", "application/json")
-                .with_body(r#"{"test":"content"}"#)
+                .with_body(mock_response)
                 .create();
 
-            let result = download_translation(
-                &config,
-                &FileGroup {
-                    path_prefix: "/test".to_string(),
-                    language_code: "en-US".to_string(),
-                    file_names: vec!["test.json".to_string()],
-                },
-                "test.json",
-            )
-            .await;
+            let result = download_translation(&config, &file_group, "test.json").await;
             assert!(result.is_ok());
-            assert_eq!(result.unwrap(), r#"{"test":"content"}"#);
+
+            // 验证返回的内容是否正确
+            if let Ok(content) = result {
+                let parsed: serde_json::Value = serde_json::from_str(&content)?;
+                assert_eq!(parsed["test"]["key"].as_str().unwrap(), "Test Value");
+            }
 
             mock.assert();
             Ok(())

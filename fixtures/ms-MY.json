@@ -13,6 +13,7 @@
       "type_profitSharing": "Profit-sharing",
       "type_received": "Menerima",
       "type_send": "Hantar",
+      "type_swaps": "Swaps",
       "type_transaction": "Transaksi",
       "type_withdrawal": "Mengeluarkan",
       "type_withdrawal_refund": "Bayaran Balik Pengeluaran"
@@ -25,6 +26,7 @@
     "main": {
       "tab_limit": "Had",
       "tab_more": "Lagi",
+      "tab_position": "kedudukan",
       "tip_demo_deposit": "Deposit dan pengeluaran tidak dibenarkan dalam akaun Demo.",
       "title": "Akaun"
     },
@@ -33,11 +35,13 @@
         "label_period": "Tempoh"
       },
       "label_journal": "Jurnal",
+      "label_new": "New",
       "summary": {
         "label_account_no": "Nombor akaun.",
         "label_account_status": "Status akaun",
         "label_account_type": "Jenis akaun",
         "label_adjustment": "Adjustment",
+        "label_avg_loss": "Purata Kerugian",
         "label_avg_profit": "Purata Keuntungan",
         "label_cent_volume": "Volume(cent lots)",
         "label_created": "Dicipta",
@@ -54,12 +58,15 @@
         "label_server": "Nama pelayan",
         "label_swap_free": "Tukar Percuma",
         "label_time_zone": "Zon waktu pelayan dagangan",
+        "label_total_credit": "Jumlah kemudahan kredit",
         "label_total_profit": "Jumlah keuntungan",
         "label_trades": "Perdagangan",
         "label_unrealized_pl": "Profit",
         "label_volume": "Kelantangan (lots)",
         "label_withdrawalrefund": "Withdrawal retraction",
+        "tip_closed_pl": "The total closed P/L excluding commissions and swaps.",
         "tip_floating_pl": "P/L yang belum direalisasi dalam kedudukan terbuka tidak termasuk komisen dan swap",
+        "tip_negative_balance": "Jumlah perlindungan baki negatif setakat hari ini.",
         "tip_profit": "The unrealized P/L in open positions including commissions and swaps.",
         "tip_swap_free": "产品翻译补充",
         "tip_total_credit": "Jumlah kredit yang diberikan setakat ini.",
@@ -82,6 +89,7 @@
       "alert_title_deleted": "Dipadamkan",
       "alert_title_modify_success": "Berjaya diubah suai {orderId}",
       "alert_title_order_canceled": "Pesanan {orderId} dibatalkan",
+      "alert_title_order_filled": "Pesanan {orderId} diisi",
       "alert_title_order_placed": "Pesanan {orderId} diletakkan",
       "alert_title_order_rejected": "Order {orderId} rejected",
       "button_close": "TUTUP",
@@ -114,6 +122,7 @@
       "sort_by_ticket": "Mengikut Tiket",
       "tip_closing_position": "Kedudukan penutup",
       "tip_delete_failed": "Gagal memadam",
+      "tip_deleting": "Memadam",
       "tip_is_trading_now": "Ia sedang berdagang sekarang, sila cuba lagi kemudian",
       "tip_operation_time_out": "Masa operasi tamat",
       "tip_order_completed": "Pesanan selesai",
@@ -138,8 +147,11 @@
       "desc_record": "In order to understand the swap cost of account transactions, dcfx displays the detailed data of swap charged by the account in two modes.",
       "desc_swap": "Swap refers to the overnight fee incurred by your orders",
       "desc_swap_free": "Displays the swap adjustments on your overnight positions due to the swap-free policy. Positive numbers indicate swap saved due to the policy, while negative figures are for record-keeping, showing the exempted swap amount with no actual cost incurred.",
+      "desc_trading_activity": "This shows your current trading activity percentage",
       "detail": {
         "label_date": "Date",
+        "label_days": "Days",
+        "label_order": "Pesanan",
         "label_referrence": "Referrence",
         "label_symbol": "Simbol",
         "label_type": "taip",
@@ -156,10 +168,12 @@
       "label_level": "Swap-free level",
       "label_level_duration": "Swap-free level duration",
       "label_lots": "Volume",
+      "label_order": "Order",
       "label_period": "Tempoh",
       "label_record": "Swap Record",
       "label_sort_by": "Sort by",
       "label_swap": "Swap",
+      "label_swap_free": "Swap-free",
       "label_trading_activity": "Current trading activity",
       "tab_swap_free": "Swap Free",
       "title": "Swap Free",
@@ -187,6 +201,7 @@
       "status_active": "Aktif",
       "status_disabled": "Dilumpuhkan",
       "status_expired": "Tamat tempoh",
+      "status_read_only": "Baca sahaja",
       "trading_desc": "Terdapat pesanan deposit menunggu pembayaran, sila pindahkan dalam masa 3j:26m",
       "trading_title": "Peringatan Deposit",
       "under_review_desc": "Kami telah menerima permohonan pembukaan akaun anda. Ia akan diluluskan sebaik sahaja kami menyelesaikan usaha wajar.",
@@ -200,6 +215,7 @@
       "label_open_interrupt_title": "Pembukaan akaun hampir selesai",
       "label_switch_account": "Tukar akaun",
       "tip_account_review": "Sila tunggu semakan akaun selesai.",
+      "tip_switch_failed": "Gagal menukar, sila cuba semula",
       "tip_switch_success": "Berjaya bertukar"
     },
     "app_name": "Acts",
@@ -224,6 +240,7 @@
       "complete": "lengkap",
       "confirm": "sahkan",
       "create": "Buat",
+      "create_account": "Tambah Akaun",
       "delete": "Padam",
       "deposit": "Deposit",
       "deposit_now_title": "Deposit Sekarang",
@@ -249,6 +266,7 @@
       "account_name": "Nama akaun",
       "bal": "BAL",
       "balance": "Seimbang",
+      "buy": "Buy",
       "buy_upcase": "Buy",
       "closed_pl": "P/L tertutup",
       "commission": "Suruhanjaya",
@@ -281,6 +299,7 @@
       "sell_upcase": "Sell",
       "sl": "S/L",
       "sort_by": "Disusun mengikut",
+      "swap": "Tukar",
       "symbol": "Simbol",
       "total": "Jumlah",
       "total_profit": "Realized P/L",
@@ -291,6 +310,7 @@
       "vol": "VOL",
       "volume": "Kelantangan",
       "wallet": "Dompet",
+      "wd": "WD",
       "website_link": "Pautan laman web",
       "withdrawal": "Mengeluarkan"
     },
@@ -306,15 +326,18 @@
     "sort": {
       "history": {
         "close_time": "Masa tutup",
+        "closed_pl": "P/L tertutup",
         "commission": "Suruhanjaya",
         "open_time": "Waktu buka",
-        "swap": "Swap"
+        "swap": "Swap",
+        "volume": "Kelantangan"
       }
     },
     "time": {
       "all": "Semua",
       "day": "{day}d",
       "hour": "{hour}h",
+      "hours_ago": "{value} jam yang lalu",
       "just_now": "tadi",
       "last_180_days": "6 bulan lepas",
       "last_30_days": "30 hari lepas",
@@ -327,6 +350,7 @@
       "minutes_ago": "{value} minit yang lalu",
       "one_week": "1 minggu",
       "second": "{second}s",
+      "this_month": "Bulan ini",
       "this_week": "Minggu ini",
       "this_year": "Tahun ini",
       "today": "Hari ini",
@@ -355,6 +379,7 @@
       "photo_start_download_app": "Start to download...",
       "pull_down_to_refresh": "Tarik ke bawah untuk menyegarkan...",
       "release_to_refresh": "Lepaskan untuk menyegarkan",
+      "save_failed": "Gagal menyimpan",
       "save_success": "Berjaya disimpan",
       "set_failed": "Gagal menyediakan",
       "setting": "Tetapan...",
@@ -386,10 +411,12 @@
       "profit_program": "Program perkongsian untung",
       "profit_sharing": "Nisbah perkongsian untung",
       "provider": "Menjadi pembekal isyarat",
-      "remove_favorites": "Adakah anda pasti mahu mengalih keluar pembekal isyarat ini daripada kegemaran?"
+      "remove_favorites": "Adakah anda pasti mahu mengalih keluar pembekal isyarat ini daripada kegemaran?",
+      "total_profit": "Keuntungan hidup"
     },
     "detail": {
       "balance": {
+        "creditIn": "Deposit kredit",
         "creditOut": "Pengeluaran kredit",
         "deposit": "Deposit",
         "deposit_cancel": "Pembatalan deposit",
@@ -401,7 +428,10 @@
         "profit_sharing": "Berkongsi keuntungan",
         "summary_title": "Seimbang",
         "total_profit": "Keuntungan hidup",
+        "transaction": "Transaksi",
+        "transfer_in": "Diterima",
         "transfer_out": "Dihantar",
+        "walletIn": "Pemindahan masuk",
         "walletOut": "Pindah keluar",
         "withdraw_cancel": "Tarik balik pembatalan",
         "zero": "Sifar"
@@ -418,12 +448,16 @@
         "account_title": "Peniaga salin",
         "chart_highlight_title": "Peniaga salin",
         "chart_loss": "rugi",
+        "chart_profit": "Jumlah keuntungan",
         "copy_amount": "Salin Jumlah",
+        "profit_chart_desc": "Untung rugi",
         "segmented_title": "Perdagangan salinan",
         "tab_history": "Sejarah"
       },
       "followingAccount": {
         "account_following": "Peniaga salin",
+        "amount_copy": "Salin Jumlah",
+        "browse_title": "Semak imbas Penyedia Isyarat",
         "by_title": "oleh",
         "chart_label_title": "Perdagangan salinan",
         "collect_failed": "Koleksi gagal",
@@ -439,7 +473,10 @@
         "following_key": "Menyalin...",
         "following_status": "perdagangan salinan",
         "history_follows": "Salin sejarah perdagangan",
+        "investment_title": "Pelaburan",
         "max_loss": "Kerugian Maksimum",
+        "max_profit": "Keuntungan Maksimum",
+        "min_investment": "Pelaburan Min",
         "overview_day": "minggu",
         "overview_days": "minggu",
         "profile_weeks": "minggu",
@@ -448,10 +485,14 @@
         "remove_failed": "Pengalihan keluar gagal",
         "remove_success": "Dialih keluar daripada kegemaran",
         "signal_account_title": "Pembekal isyarat",
-        "summary_follow": "Salinan"
+        "stop_equity": "Hentikan Salin",
+        "summary_follow": "Salinan",
+        "total_profit_title": "Jumlah Salinan Keuntungan",
+        "translate_failed": "Diterjemah gagal"
       },
       "openAccount": {
         "tips": "Copytrade memerlukan akaun sebenar, sila buat akaun nyata untuk mengalami copytrade",
+        "title": "Buka akaun",
         "usc_tips": "To use copy-trading, you need a real account. Simply create one to begin your copy-trading journey."
       },
       "orders": {
@@ -465,6 +506,7 @@
         "average_pl": "Purata Untung/Rugi",
         "avg_loss": "Purata Kerugian",
         "avg_profit": "Purata Keuntungan",
+        "avg_time": "Tempoh Purata",
         "avg_title": "Purata Tempoh (Perdagangan Untung/Perdagangan Rugi)",
         "balance_equity": "EQ",
         "balance_legend": "BAL",
@@ -472,10 +514,13 @@
         "close_profit_loss": "Untung/Rugi Tertutup",
         "deposit_desc": "Deposit",
         "deposit_legend": "DP",
+        "direct_long": "Panjang",
         "duration": "Tempoh",
         "equity_balance": "Ekuiti/Baki",
         "floatPL_loss": "rugi",
         "floatPL_profit": "Untung",
+        "floating_pl": "Untung/Rugi Terapung",
+        "funds_title": "Dana",
         "loss_legend": "rugi",
         "month_profit": "P/L Tertutup",
         "other": "Lain-lain",
@@ -490,16 +535,19 @@
         "trades": "Perdagangan",
         "trading_weeks": "Tempoh",
         "weeks": "minggu",
+        "win_rate": "Keberuntungan",
         "withdraw_desc": "Mengeluarkan"
       },
       "profile": {
         "original": "Asal",
         "restricts_subtitle": "Anda boleh melihatnya selepas mengikuti",
         "restricts_title": "Isyarat Mengehadkan Pandangan",
+        "show_less": "Tunjukkan Kurang",
         "show_more": "Tunjukkan Lagi",
         "translate": "Terjemah"
       },
       "profitSharing": {
+        "copy_account": "Peniaga salin",
         "copy_ratio": "Skala Salin",
         "copy_trade_hwmTip": "Paras tanda air yang tinggi ialah nilai akhir yang dihasilkan oleh penyedia Isyarat pada penghujung kitaran 30 hari dari saat Salinan dagangan bermula. HWM baharu akan dibuat apabila nilai yang lebih tinggi dihasilkan pada penghujung kitaran berikutnya.",
         "hwm_title": "HWM",
@@ -510,6 +558,7 @@
         "total_profit_shared": "Jumlah Kongsi Keuntungan"
       },
       "segment": {
+        "balance": "Seimbang",
         "copy_traders": "Peniaga salin",
         "copy_trading": "Perdagangan salinan",
         "orders": "Pesanan",
@@ -525,7 +574,8 @@
         "floating_PL": "P/L Terapung",
         "follower": {
           "account_count": "{count} Perdagangan salinan",
-          "info_a_week": "oleh {ratio_value} ,{week_count} minggu, {signal_name}"
+          "info_a_week": "oleh {ratio_value} ,{week_count} minggu, {signal_name}",
+          "info_weeks": "oleh {ratio_value} ,{week_count} minggu, {signal_name}"
         },
         "history": "Sejarah salin dagangan",
         "not_setup_title": "Salin dagangan Bukan Persediaan",
@@ -544,11 +594,14 @@
         "min_invesment": "Pelaburan Min",
         "section_result": "{count} Keputusan",
         "sort": {
+          "copy_amount": "Salin jumlah",
           "copy_profit": "Salin keuntungan",
           "copy_traders": "Copy-trading",
           "equity": "Ekuiti",
+          "maxDD": "MaxDD",
           "min_invesment": "Pelaburan Min",
           "profit_sharing_ratio": "Nisbah perkongsian untung",
+          "title": "Disusun mengikut:",
           "total_profit": "Keuntungan hidup",
           "total_profit_shared": "Jumlah bahagian keuntungan"
         },
@@ -557,6 +610,7 @@
       }
     },
     "modify_failed_retry": "Gagal mengubah suai, Sila cuba semula kemudian",
+    "page_left_title": "Perdagangan salinan",
     "search": {
       "nav_search_title": "Pembekal Isyarat Carian",
       "no_result_detail": "Istilah yang anda masukkan tidak membawa sebarang hasil. Cuba istilah carian yang berbeza.",
@@ -575,6 +629,7 @@
         "title": "Selamat datang ke Acts"
       },
       "tip_buttontext": "Sertai sekarang",
+      "tip_content": "Anda akan menerima 50% atau sehingga $10,000 Bonus Kredit pada semua deposit anda yang melebihi 200 USD dalam tempoh 7 hari dari deposit pertama anda!",
       "tip_title": "Bonus Selamat Datang"
     },
     "discover": "Temui",
@@ -588,12 +643,15 @@
       "participate_time": "Tempoh sah",
       "participated": "mengambil bahagian",
       "participated_in": "Participated in {time}",
+      "promotions": "Promosi",
       "promotions_desc": "Temui promosi terkini dan teroka cara untuk menjimatkan dagangan anda. Nikmati kempen eksklusif seperti Program Bebas Swap, Bonus Selamat Datang, Bonus Deposit dan banyak lagi.",
       "promotions_times": "Promosi Saya",
       "registration_time": "Registration period",
       "rewards_des": "Sertai dan dapatkan ganjaran yang banyak.",
       "rewards_title": "Pusat Ganjaran",
+      "unable_to_participate": "Unable to participate",
       "valid_period": "Tempoh sah {time}",
+      "wait_activation": "Permintaan deposit sedang dijalankan...",
       "wait_start": "Uncoming"
     },
     "markets_title": "Pasaran",
@@ -613,6 +671,7 @@
     "request": {
       "error_title": "ralat"
     },
+    "rewards_point_label": "titik",
     "signal": {
       "recommend_following_count_title": "Peniaga salin",
       "recommend_tips": "Lebih mudah, lebih pantas, tingkatkan keuntungan dagangan anda.",
@@ -631,6 +690,7 @@
   "im": {
     "common": {
       "button_save": "Jimat",
+      "chat_connect_status_reconnect": "Klik untuk cuba menyambung semula",
       "group_chat": "Sembang Kumpulan",
       "label_admin": "Admin",
       "label_owner": "Pemilik",
@@ -651,6 +711,7 @@
       },
       "no_contacts": "Tiada kenalan lagi",
       "permission_save_contacts": "Allow Access to your mobile phone contacts so you can share with them more easily.",
+      "pop_button_cancel": "Don't Allow",
       "pop_title": "\"Acts\" Would Like to Access Your Contacts",
       "result": "Keputusan",
       "sort_type_join": "Sertai",
@@ -669,6 +730,7 @@
       "blocked_me": "Your IM is unblocked",
       "blocked_me_time": "IM anda disekat buat sementara waktu sehingga {time}",
       "button_hold_to_talk": "Tahan untuk bercakap",
+      "chat_copy": "Salinan",
       "chat_delete": "Padam",
       "chat_empty_message_tip": "Sambungan rangkaian semasa adalah perlahan, anda boleh menghubungi perkhidmatan pelanggan dengan cara berikut: support@dcfx labuan.com atau +44 (0) 161 883 2515",
       "chat_empty_message_title": "Tiada mesej",
@@ -679,11 +741,15 @@
       "chat_message_recall": "{user} mengingat semula mesej.",
       "chat_message_recall_mine": "Anda teringat satu mesej.",
       "chat_recall": "Recall",
+      "chat_reply": "Balas",
+      "chat_report_message": "Laporan",
       "chat_unknown_message": "Versi semasa tidak menyokong jenis mesej ini.",
       "digest_group_notice": "[Notis kumpulan]",
       "digest_image": "[Imej]",
+      "digest_robot": "Transaction conversion",
       "digest_voice": "[Suara]",
       "failed_to_send": "[Gagal untuk dihantar]",
+      "robot_message_content": "Message details:",
       "robot_message_title": "Message type: Transaction conversion",
       "tip_audio_cancel_send": "batal hantar",
       "tip_audio_release_to_send": "Lepaskan untuk dihantar",
@@ -782,6 +848,7 @@
     "setting": {
       "block_message": "Sekat mesej",
       "bot_text_type": "Jenis pemberitahuan",
+      "bot_text_type_content": "Butiran",
       "bot_text_type_trade_trans": "Penukaran urus niaga",
       "button_edit": "Sunting",
       "button_messages": "Mesej",
@@ -795,8 +862,10 @@
       "pinned_message_desc": "Once enabled, this pinned message will be displayed to all your customers",
       "pinned_message_hint": "Please enter",
       "pinned_message_title": "Pin message",
+      "profile": "Profil",
       "remark": "Teguran",
       "report": "Laporkan",
+      "sound": "Bunyi",
       "sticky_top": "Melekit di atas",
       "tip_block_message": "Berhenti menerima mesej @{user} di dcfx labuan",
       "tip_delete_chat": "Padamkan sejarah sembang?",
@@ -805,6 +874,7 @@
       "tip_please_enter": "Please enter",
       "tip_save_failed": "Gagal menyimpan",
       "tip_save_success": "Berjaya disimpan",
+      "tip_setting_sucess": "Menetapkan kejayaan",
       "tip_welcome_message": "Apabila rujukan berjaya mendaftar dengan dcfx labuan, mesej akan dihantar secara automatik kepada mereka.",
       "title": "Tetapan mesej",
       "title_enter_to_send": "Masuk untuk menghantar",
@@ -844,6 +914,7 @@
       "enter_new_mobile": "Sila masukkan nombor telefon bimbit baharu anda.",
       "tip_change_success": "Anda telah berjaya menukar telefon bimbit anda.",
       "verify_bind_mobile": "Sahkan nombor telefon bimbit untuk pemberitahuan dan maklumat.",
+      "verify_current_mobile": "Sila sahkan nombor telefon bimbit semasa.",
       "verify_title": "Pengesahan"
     },
     "common": {
@@ -863,6 +934,7 @@
       "tips_email_error": "Sila masukkan alamat emel yang sah.",
       "tips_email_not_exist": "Alamat e-mel ini tidak wujud.",
       "tips_email_registered": "Alamat e-mel ini telah pun didaftarkan.",
+      "tips_email_vcode_send_success": "Kod pengesahan telah dihantar ke alamat e-mel anda.",
       "tips_mobile_error": "Sila masukkan nombor telefon yang sah.",
       "tips_mobile_not_exist": "Nombor mudah alih ini tidak wujud.",
       "tips_mobile_registered": "Nombor mudah alih ini telah pun didaftarkan.",
@@ -871,7 +943,8 @@
     },
     "forget_password": {
       "content": "Dapatkan kod pengesahan anda melalui nombor mudah alih atau alamat e-mel.",
-      "label_via": "Melalui"
+      "label_via": "Melalui",
+      "title": "Lupa kata laluan"
     },
     "guide": {
       "button_login": "Log masuk",
@@ -885,11 +958,13 @@
       "welcome_title": "Selamat datang ke dcfx labuan"
     },
     "loginpage": {
+      "button_forgot_password": "lupa kata laluan?",
       "button_login_via_email": "Log masuk melalui alamat e-mel",
       "button_login_via_mobile": "Log masuk melalui nombor telefon",
       "title": "Log masuk"
     },
     "otp": {
+      "button_other_methods": "Other methods",
       "button_switch_method": "Switch the otp method",
       "email_receive_type": "spam mailbox, trash, archived and promotions",
       "label_attention_email": "Kindly pay attention to your email inbox",
@@ -957,9 +1032,14 @@
       "placeholder_set": "Tetapkan",
       "symbol_type_commodities": "Komoditi",
       "symbol_type_cryptos": "Mata wang kripto",
+      "symbol_type_eustocks": "EUStocks",
+      "symbol_type_forex": "Valas",
       "symbol_type_futures": "Futures",
+      "symbol_type_hkstocks": "HKStocks",
+      "symbol_type_indices": "Indeks",
       "symbol_type_metals": "Metals",
       "symbol_type_others": "Others",
+      "symbol_type_shares": "Saham",
       "symbol_type_stocks": "Stocks",
       "symbol_type_usstocks": "USStocks",
       "tip_account_disabled": "Akaun anda telah dilumpuhkan, sila hubungi perkhidmatan pelanggan untuk mendapatkan bantuan.",
@@ -982,8 +1062,10 @@
     },
     "main": {
       "demo_server_name": "dcfx labuan Ltd",
+      "label_account": "Akaun",
       "label_current_price": "Harga semasa",
-      "title": "Pasaran"
+      "title": "Pasaran",
+      "view_all_accounts": "Lihat semua akaun"
     },
     "trading": {
       "button_reapply_demo": "Mohon semula untuk Demo",
@@ -994,6 +1076,7 @@
       "label_digits": "Digit",
       "label_free": "Percuma",
       "label_gap_limitation": "Had Jurang",
+      "label_hedging_margin": "Margin Lindung Nilai",
       "label_high": "HIGH",
       "label_leverage_limit": "Had Leverage",
       "label_low": "LOW",
@@ -1020,6 +1103,7 @@
       "label_volume_step": "Kenaikan Saiz Dagangan",
       "placeholder_no_set": "Tiada set",
       "swapmode_by_percentage": "Mengikut Peratusan",
+      "swapmode_in_dollar": "Dalam dolar",
       "swapmode_in_points": "Dalam mata",
       "tip_add_failed": "Tambah Gagal",
       "tip_demo_account_expired": "Untuk pengalaman lengkap dalam perdagangan, sila buka akaun langsung",
@@ -1028,6 +1112,9 @@
       "tip_reapply_demo_failed": "Akaun demo gagal dibuat.",
       "tip_reapply_demo_success": "Akaun demo berjaya dibuat.",
       "tip_volume_less_than_min": "Bilangan lot tidak boleh kurang daripada minimum",
+      "tip_volume_more_than_max": "Bilangan lot tidak boleh melebihi maksimum",
+      "title_disabled": "Dilumpuhkan",
+      "title_insights": "Gambaran keseluruhan",
       "title_limit": "Had",
       "title_limit_order": "Had Pesanan",
       "title_market": "Pasaran",
@@ -1035,6 +1122,7 @@
       "title_notice": "Notis",
       "title_quote_session": "Sesi sebut harga",
       "title_sorry": "Maaf!",
+      "title_specification": "Butiran Simbol",
       "title_specifications": "Butiran",
       "title_trading_session": "Sesi Perdagangan"
     }
@@ -1070,6 +1158,7 @@
       "pie": {
         "balance": "Balance",
         "funds": "$",
+        "registration": "Registration",
         "symbols": "Symbols",
         "verified": "User",
         "volume": "Volume"
@@ -1087,6 +1176,7 @@
       "filter_processing": "Memproses",
       "label_account_no": "Nombor akaun.",
       "label_complete": "lengkap",
+      "label_credited_amount": "Jumlah yang dikreditkan",
       "label_name": "Nombor akaun.",
       "label_reference": "Reference",
       "label_transfer_amount": "Jumlah pemindahan",
@@ -1100,6 +1190,7 @@
       "detail_title": "Perincian",
       "homepage_title": "Ajak kawan-kawan untuk dapatkan ganjaran!",
       "homepage_title_description": "Anda boleh menghantar pautan di bawah kepada rakan anda, dan anda boleh mendapat lebih banyak ganjaran.",
+      "popc_title": "Ajak kawan-kawan anda",
       "share_des": "Hantar pautan ini kepada rakan anda. Anda akan diberi ganjaran serta-merta apabila mereka mendaftar.",
       "unlock_tips": "Tingkatkan keahlian anda untuk lebih banyak faedah."
     },
@@ -1130,7 +1221,8 @@
       "label_wallet_desc": "Available balance",
       "rebates": "Rebates",
       "title_overview": "Gambaran keseluruhan",
-      "title_trading_account": "Akaun Perdagangan"
+      "title_trading_account": "Akaun Perdagangan",
+      "title_upgrade": "Tingkatkan Tahap Rakan Kongsi"
     },
     "personal": {
       "activities": "Activities",
@@ -1141,6 +1233,7 @@
     },
     "referral": {
       "action_less": "Kurang",
+      "action_more": "Lagi",
       "activity": "Aktiviti",
       "button_filter": "Penapis",
       "filter": {
@@ -1150,6 +1243,7 @@
         "markup": "Mark up",
         "not_verified": "Not verified",
         "reset": "Reset",
+        "save": "Save",
         "since": "Since",
         "verification": "Verification",
         "verified": "Verified"
@@ -1161,6 +1255,7 @@
         "content3": "Data dipaparkan secara selari, dan statistik hanya memaparkan data peribadi pengguna.",
         "title": "Struktur paparan data",
         "title1": "Struktur pokok",
+        "title2": "Struktur selari",
         "title3": "Struktur selari (hanya mengira data peribadi pengguna)"
       },
       "label_tier": "Lapisan",
@@ -1174,6 +1269,7 @@
       "history": "Sejarah",
       "no_history": "Cuba cari nama, nombor telefon atau e-mel",
       "no_result_descrition": "Cuba kata kunci sinonim atau lebih umum",
+      "no_result_title": "Tiada hasil untuk {result}",
       "placeholder": "Nama carian, mudah alih, e-mel, UID",
       "result": "Keputusan"
     },
@@ -1200,9 +1296,11 @@
       "grade_low": "rendah",
       "grade_medium": "Sederhana",
       "label_actual": "sebenarnya",
+      "label_forecast": "Ramalan",
       "label_impact": "Kesan",
       "label_previous": "Sebelumnya",
       "label_published": "Diterbitkan",
+      "label_region": "Negara/Wilayah",
       "no_access_to_calendar": "Tiada akses kepada kalendar",
       "revised_from": "Disemak daripada {value}",
       "tip_add_failed": "Gagal menambah",
@@ -1212,15 +1310,18 @@
       "title": "Kalendar"
     },
     "live": {
+      "button_reminder_on": "Peringatan dihidupkan",
       "button_set_reminder": "Tetapkan peringatan",
       "join_live_room": "Sertai Bilik Langsung",
       "live_time": "Masa hidup"
     },
     "main": {
       "button_read_more": "Baca Lagi",
+      "label_top": "TOP",
       "label_views": "pandangan",
       "tab_all": "Semua",
       "tab_analysis": "Analyst Views",
+      "tab_calendar": "Kalendar",
       "tab_live": "Langsung",
       "tab_market_analysis": "Berita",
       "tab_newsflash": "Newsflash",
@@ -1237,6 +1338,7 @@
       "button_copy_link": "Salin pautan",
       "button_save": "Jimat",
       "button_share": "Kongsi",
+      "label_history": "Sejarah",
       "label_saved": "Disimpan"
     },
     "recommend": {
@@ -1261,15 +1363,18 @@
       "closed_pl_three_month": "P/L tertutup selama tiga bulan",
       "closed_pl_today": "P/L ditutup hari ini",
       "closed_pl_total": "P/L tertutup daripada jumlah",
+      "closed_pl_week": "P/L tertutup minggu",
       "open_time": "Waktu buka",
       "send_time": "Hantar masa",
       "tab_history": "Sejarah",
       "tab_new": "New",
+      "title_closed_signal": "Isyarat tertutup",
       "title_performance": "Prestasi"
     }
   },
   "notification": {
     "pop_turn_on": {
+      "button_turn_on": "Hidupkan",
       "content": "1. Maklumat Pasaran Masa Nyata.n2. Terima maklumat dengan segera mengenai Acara Pemasaran.n3. Pemberitahuan tepat pada masanya daripada Khidmat Pelanggan.",
       "title": "Hidupkan Pemberitahuan untuk:"
     },
@@ -1277,6 +1382,7 @@
       "filter_account": "Akaun",
       "filter_copy_trade": "Copy-trade",
       "filter_fund": "Dana",
+      "filter_marketing": "Pemasaran",
       "filter_member": "Ahli",
       "filter_trading": "Perdagangan"
     },
@@ -1286,6 +1392,7 @@
     "account_type": "Pelanggan",
     "account_type_sub": "Instrumen, leverage dan butiran margin",
     "additional_verification": "Pengesahan Tambahan",
+    "additional_verification_desc": "NPWP atau bukti alamat anda",
     "beneficiary_account": "Akaun Penerima",
     "beneficiary_account_sub": "Urus butiran akaun benefisiari anda",
     "cache": "Cache",
@@ -1304,10 +1411,13 @@
     "latest_version": "Ia adalah versi terkini.",
     "more": "Lagi",
     "notification": {
-      "lowVersion_push_tips": "Sila ubah suai dalam sistem &Tetapan&-&Pemberitahuan&"
+      "lowVersion_push_tips": "Sila ubah suai dalam sistem &Tetapan&-&Pemberitahuan&",
+      "title": "Pemberitahuan"
     },
+    "one_click_switch": "Perdagangan satu klik",
     "one_click_trading_tip": "Setelah diaktifkan, tiada maklumat tambahan diperlukan semasa membuka atau menutup pesanan.",
     "one_click_trading_title": "One-click trading",
+    "personal_info": "Peribadi",
     "personal_info_sub": "Sahkan kad pengenalan atau pasport, tempat tinggal, nombor telefon bimbit, alamat e-mel",
     "profile": "Profil",
     "security": {
@@ -1320,10 +1430,14 @@
       "security_title": "Keselamatan",
       "uid": "UID"
     },
+    "setting_sub": "Tetapan keselamatan, perdagangan dan bahasa",
     "setting_title": "tetapan",
     "sideMenu": {
+      "account_topup_description": "Tahniah anda telah berjaya membuka akaun dagangan di dcfx labuan. Deposit dana untuk memulakan dagangan.",
       "swap_free_criterial": "Tukar Kriteria Percuma",
-      "swap_free_title": "SWAP PERCUMA"
+      "swap_free_title": "SWAP PERCUMA",
+      "swap_pop_tip": "Tujuh hari perdagangan bebas swap dikenakan kepada dua belas Instrumen berikut:XAGUSD, XAUUSD, AUDUSD, EURGBP, EURJPY, EURUSD, GBPJPY, GBPUSD, NZDUSD, USdcfx labuanAD, USdcfx labuanHF, USDJPY.",
+      "title": "Menu"
     },
     "sign_out": "Log Keluar",
     "sign_out_desc": "Adakah anda pasti?",
@@ -1337,6 +1451,7 @@
     },
     "theme_model": "Penampilan",
     "trade_sound_switch": "Bunyi",
+    "trading_rules": "Perdagangan",
     "trading_rules_sub": "Instrumen, leverage dan butiran margin",
     "transaction": "Pengalaman Perdagangan",
     "transaction_desc": "Urus niaga dan aset anda",

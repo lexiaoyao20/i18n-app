@@ -7,12 +7,15 @@
       "sort_time": "วันที่",
       "type": "พิมพ์",
       "type_adjustment": "การปรับ",
+      "type_all": "ทั้งหมด",
       "type_deposit": "เงินฝาก",
+      "type_negativeBalance": "ยอดคงเหลือติดลบ",
       "type_profitSharing": "Profit-sharing",
       "type_received": "ได้รับ",
       "type_send": "ส่ง",
       "type_swaps": "แลกเปลี่ยน",
       "type_transaction": "ธุรกรรม",
+      "type_withdrawal": "การถอนเงิน",
       "type_withdrawal_refund": "การคืนเงินการถอนเงิน"
     },
     "common": {
@@ -47,6 +50,7 @@
         "label_leverage": "การงัด",
         "label_margin_requirements": "ข้อกำหนดมาร์จิ้น",
         "label_mode": "Mode",
+        "label_negative_balance": "การป้องกันยอดคงเหลือติดลบ",
         "label_platform": "แพลตฟอร์ม",
         "label_profitability": "การทำกำไร",
         "label_received": "Received",
@@ -63,9 +67,11 @@
         "tip_closed_pl": "P/L ที่ปิดแล้วทั้งหมด ไม่รวมค่าคอมมิชชั่นและสวอป",
         "tip_floating_pl": "P/L ที่ยังไม่เกิดขึ้นจริงในตำแหน่งที่เปิดอยู่ ไม่รวมค่าคอมมิชชั่นและสวอป",
         "tip_negative_balance": "การป้องกันยอดคงเหลือติดลบทั้งหมด ณ วันนี้",
+        "tip_profit": "P/L ที่ยังไม่เกิดขึ้นจริงในตำแหน่งที่เปิดอยู่ รวมถึงค่าคอมมิชชั่นและสวอป",
         "tip_swap_free": "产品翻译补充",
         "tip_total_credit": "เครดิตทั้งหมดที่ได้รับจนถึงปัจจุบัน",
         "tip_total_profit": "P/L ที่ปิดแล้วทั้งหมด รวมถึงค่าคอมมิชชั่นและสวอป",
+        "tip_trades": "จำนวนการซื้อขายทั้งหมดที่ปิด",
         "tip_volume": "ปริมาณการซื้อขายทั้งหมดที่ถูกปิด",
         "title": "สรุป"
       },
@@ -73,6 +79,7 @@
       "title_deposit_details": "รายละเอียดการฝากเงิน",
       "title_history": "ประวัติศาสตร์",
       "title_password": "รหัสผ่าน",
+      "title_performance": "ประสิทธิภาพ",
       "title_statement": "คำแถลง",
       "title_swap": "Swap",
       "title_transfer_record": "บันทึกการโอน",
@@ -117,16 +124,19 @@
       "tip_delete_failed": "ลบไม่สำเร็จ",
       "tip_deleting": "กำลังลบ",
       "tip_is_trading_now": "ขณะนี้กำลังซื้อขาย โปรดลองอีกครั้งในภายหลัง",
+      "tip_operation_time_out": "หมดเวลาการทำงาน",
       "tip_order_completed": "เสร็จสิ้นการสั่งซื้อ",
       "tip_order_placed": "สั่งซื้อ",
       "tip_swipe_left": "ปัดไปทางซ้าย",
       "tip_trading": "การซื้อขาย",
       "tip_view_detail": "ดูรายละเอียดธุรกรรมในบันทึกประจำวัน",
-      "title_confirm_delete": "ยืนยันการลบ"
+      "title_confirm_delete": "ยืนยันการลบ",
+      "title_history_order": "ลำดับประวัติศาสตร์"
     },
     "performance": {
       "tip_chart_not_available": "ไม่มีแผนภูมินี้",
-      "tip_connecting": "กำลังโหลด..."
+      "tip_connecting": "กำลังโหลด...",
+      "total_profit": "กำไร/ขาดทุนที่เกิดขึ้นแล้ว"
     },
     "swap": {
       "desc": "For your better understanding of the Swap Free Program, we've provided explanations for these terms below.",
@@ -135,12 +145,15 @@
       "desc_level_duration": "This shows your current swap-free level duration",
       "desc_order": "Display the total swap fee charged for each order, including the position-holding period and daily Swap charged amount.",
       "desc_record": "In order to understand the swap cost of account transactions, Acts displays the detailed data of swap charged by the account in two modes.",
+      "desc_swap": "Swap refers to the overnight fee incurred by your orders",
       "desc_swap_free": "Displays the swap adjustments on your overnight positions due to the swap-free policy. Positive numbers indicate swap saved due to the policy, while negative figures are for record-keeping, showing the exempted swap amount with no actual cost incurred.",
       "desc_trading_activity": "This shows your current trading activity percentage",
       "detail": {
         "label_date": "Date",
         "label_days": "Days",
+        "label_order": "คำสั่ง",
         "label_referrence": "Referrence",
+        "label_symbol": "เครื่องหมาย",
         "label_type": "พิมพ์",
         "label_volume": "ปริมาณ",
         "last_trading_activity": "Last trading activity",
@@ -170,20 +183,25 @@
   },
   "common": {
     "account": {
+      "button_deposit": "เงินฝาก",
       "demo": "Demo",
       "deposit_desc": "ขอแสดงความยินดี คุณได้เปิดบัญชีซื้อขายใน dcfx labuan สำเร็จแล้ว ฝากเงินเพื่อเริ่มการซื้อขาย",
       "deposit_title": "เปิดบัญชีสำเร็จ",
       "forbid_transfer_toast": "The transferring account has not completed the required first deposit amount.",
       "interrupt_desc": "ขอขอบคุณที่สนใจเปิดบัญชี dcfx labuan มีแบบฟอร์มสมัครเปิดบัญชีออนไลน์เพื่อเริ่มต้นการซื้อขายของคุณ",
       "interrupt_title": "การเปิดบัญชีใกล้จะเสร็จสมบูรณ์แล้ว",
+      "kyc_passed_desc": "ยินดีด้วย โปรไฟล์ของคุณได้รับการยืนยันแล้ว เริ่มเพิ่มบัญชีซื้อขายทันที",
       "kyc_passed_title": "สร้างบัญชี",
       "open_desc": "ขอขอบคุณที่สนใจเปิดบัญชี dcfx labuan มีแบบฟอร์มการเปิดบัญชีออนไลน์เพื่อเริ่มต้นการซื้อขายของคุณ",
+      "open_title": "เปิดบัญชี",
+      "review_failed": "เปิดบัญชีไม่สำเร็จ",
       "review_failed_desc": "เราเสียใจที่ต้องแจ้งให้ทราบว่าการสมัครเปิดบัญชีของคุณไม่สำเร็จ",
       "role_follower": "คัดลอกเทรดเดอร์",
       "role_signal_provider": "ผู้ให้บริการสัญญาณ",
       "status_active": "คล่องแคล่ว",
       "status_disabled": "พิการ",
       "status_expired": "หมดอายุ",
+      "status_read_only": "อ่านเท่านั้น",
       "trading_desc": "มีคำสั่งมัดจำรอการชำระเงินกรุณาโอนภายใน 3 ชม.:26น",
       "trading_title": "การแจ้งเตือนการฝากเงิน",
       "under_review_desc": "เราได้รับใบสมัครเปิดบัญชีของคุณแล้ว จะได้รับการอนุมัติทันทีที่เราได้เสร็จสิ้นการตรวจสอบสถานะแล้ว",
@@ -195,6 +213,7 @@
       "label_current_account": "หมุนเวียน",
       "label_open_interrupt_desc": "ขอขอบคุณที่สนใจเปิดบัญชี dcfx labuan มีแบบฟอร์มสมัครเปิดบัญชีออนไลน์เพื่อเริ่มต้นการซื้อขายของคุณ",
       "label_open_interrupt_title": "การเปิดบัญชีใกล้จะเสร็จสมบูรณ์แล้ว",
+      "label_switch_account": "สลับบัญชี",
       "tip_account_review": "โปรดรอการตรวจสอบบัญชีที่เสร็จสมบูรณ์",
       "tip_switch_failed": "ไม่สามารถเปลี่ยนได้ โปรดลองอีกครั้ง",
       "tip_switch_success": "เปลี่ยนสำเร็จ"
@@ -213,6 +232,7 @@
       "alert_title": "ให้คะแนน dcfx labuan"
     },
     "button": {
+      "back": "Back",
       "cancel": "ยกเลิก",
       "choose_photo": "เลือกจากอัลบั้ม",
       "clear": "ชัดเจน",
@@ -225,6 +245,7 @@
       "deposit": "เงินฝาก",
       "deposit_now_title": "ฝากเงินตอนนี้",
       "edit": "แก้ไข",
+      "get_start_title": "ยืนยันตัวตนของคุณ",
       "got_it": "เข้าใจแล้ว",
       "load_more": "โหลดเพิ่ม",
       "ok": "ตกลง",
@@ -237,7 +258,8 @@
       "status_review_title": "กำลังดำเนินการ...",
       "top_up_title": "เงินฝาก",
       "transfer": "โอนย้าย",
-      "view_photo": "ดูภาพ"
+      "view_photo": "ดูภาพ",
+      "withdraw": "ถอน"
     },
     "label": {
       "account_balance": "ยอดเงินในบัญชี",
@@ -257,15 +279,18 @@
       "floating_pl": "ลอยตัว P/L",
       "free_margin": "มาร์จิ้นฟรี",
       "history": "ประวัติศาสตร์",
+      "idr": "IDR",
       "live_profit": "Live Profit",
       "lot": "มาก",
       "lot_lowercase": "มาก",
       "lots": "lots",
       "margin_level": "ระดับมาร์จิ้น",
       "member_wallet_idr": "IDR",
+      "name": "ชื่อ",
       "no_data": "ไม่มีข้อมูล",
       "page_end": "-จบ-",
       "period": "ระยะเวลา",
+      "position": "ตำแหน่ง",
       "prefix_id": "ID {id}",
       "profit": "กำไร/ขาดทุนที่ยังไม่เกิดขึ้น",
       "results": "ผลลัพธ์",
@@ -281,6 +306,7 @@
       "tp": "T/P",
       "usc": "USC",
       "usd": "ดอลล่าร์",
+      "utc": "UTC",
       "vol": "VOL",
       "volume": "ปริมาณ",
       "wallet": "กระเป๋าสตางค์",
@@ -299,6 +325,7 @@
     },
     "sort": {
       "history": {
+        "close_time": "เวลาปิด",
         "closed_pl": "ปิด P/L",
         "commission": "คณะกรรมการ",
         "open_time": "เวลาเปิด",
@@ -337,7 +364,9 @@
       "click_to_exit": "คลิกอีกครั้งเพื่อออกจากแอป",
       "copied_to_clipboard": "คัดลอกไปยังคลิปบอร์ด",
       "image_has_save_to_album": "บันทึกรูปภาพลงในอัลบั้มแล้ว",
+      "image_save_failed": "บันทึกล้มเหลว โปรดตรวจสอบเครือข่ายของคุณ",
       "is_loading": "กำลังโหลด",
+      "load_end": "- ตอนจบ -",
       "load_failed": "การโหลดล้มเหลว คลิกเพื่อลองอีกครั้ง",
       "login_expired": "เข้าสู่ระบบหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
       "no_access_photo_library": "ไม่สามารถเข้าถึงรูปภาพในอัลบั้มได้",
@@ -345,8 +374,10 @@
       "not_install_appstore": "คุณยังไม่ได้ติดตั้งร้านแอป",
       "permission_deny_message_photo": "Acts ต้องการเข้าถึงไลบรารีรูปภาพและกล้องถ่ายรูปของคุณเพื่ออัปโหลดรูปโปรไฟล์หรือแสดงหลักฐาน",
       "permissions": "dcfx ต้องการให้คุณเปิดใช้งานการอนุญาตที่เหมาะสมเพื่อให้บริการคุณได้ดียิ่งขึ้น คลิกยืนยัน - ติ๊กตัวเลือกการอนุญาต",
+      "photo_load_failure": "โหลดไม่สำเร็จ",
       "photo_show_original": "View original photo",
       "photo_start_download_app": "Start to download...",
+      "pull_down_to_refresh": "ดึงลงเพื่อรีเฟรช...",
       "release_to_refresh": "ปล่อยเพื่อรีเฟรช",
       "save_failed": "บันทึกไม่สำเร็จ",
       "save_success": "บันทึกเรียบร้อยแล้ว",
@@ -356,7 +387,8 @@
       "share_image": "แบ่งปันภาพ",
       "share_successful": "แชร์สำเร็จ",
       "ssl_error": "ข้อผิดพลาดใบรับรอง SSL หรือไม่มีอยู่จริง",
-      "upload_image_failed": "ไม่สามารถอัปโหลดภาพ"
+      "upload_image_failed": "ไม่สามารถอัปโหลดภาพ",
+      "uploading": "กำลังอัปโหลด..."
     },
     "webview": {
       "button_previous": "ก่อนหน้า",
@@ -375,6 +407,7 @@
       "follower": {
         "ac_value": "A/C {value}"
       },
+      "guide": "มันทำงานอย่างไร?",
       "profit_program": "โปรแกรมแบ่งปันผลกำไร",
       "profit_sharing": "อัตราส่วนการแบ่งผลกำไร",
       "provider": "มาเป็นผู้ให้บริการสัญญาณ",
@@ -387,11 +420,13 @@
         "creditOut": "การถอนเครดิต",
         "deposit": "เงินฝาก",
         "deposit_cancel": "การยกเลิกเงินฝาก",
+        "exchange_rate": "อัตราแลกเปลี่ยน",
         "method": "วิธี",
         "operationIn": "การดำเนินงานใน",
         "operationOut": "การถอนโปรโมชั่น",
         "order_id": "รหัสคำสั่งซื้อ",
         "profit_sharing": "การแบ่งปันผลกำไร",
+        "summary_title": "สมดุล",
         "total_profit": "กำไรสด",
         "transaction": "ธุรกรรม",
         "transfer_in": "ได้รับ",
@@ -403,12 +438,14 @@
       },
       "filter": {
         "copy_profit": "คัดลอกกำไร",
+        "month": "เดือน",
         "profit": "คัดลอกกำไร",
         "search_placeholder": "ค้นหาเครื่องปรับอากาศ",
         "sort_by_time": "เวลา",
         "weeks": "สัปดาห์"
       },
       "followers": {
+        "account_title": "คัดลอกเทรดเดอร์",
         "chart_highlight_title": "คัดลอกเทรดเดอร์",
         "chart_loss": "การสูญเสีย",
         "chart_profit": "กำไร",
@@ -435,6 +472,7 @@
         "following_chart_title": "คัดลอกเทรดเดอร์",
         "following_key": "กำลังคัดลอก...",
         "following_status": "คัดลอกการซื้อขาย",
+        "history_follows": "คัดลอกประวัติการซื้อขาย",
         "investment_title": "การลงทุน",
         "max_loss": "การสูญเสียสูงสุด",
         "max_profit": "กำไรสูงสุด",
@@ -468,6 +506,8 @@
         "average_pl": "กำไร/ขาดทุนเฉลี่ย",
         "avg_loss": "ขาดทุนเฉลี่ย",
         "avg_profit": "กำไรเฉลี่ย",
+        "avg_time": "ระยะเวลาเฉลี่ย",
+        "avg_title": "เฉลี่ย ระยะเวลา (การซื้อขายเพื่อกำไร/การซื้อขายขาดทุน)",
         "balance_equity": "EQ",
         "balance_legend": "BAL",
         "button_more": "มากกว่า",
@@ -478,15 +518,19 @@
         "duration": "ระยะเวลา",
         "equity_balance": "ทุน/ยอดคงเหลือ",
         "floatPL_loss": "การสูญเสีย",
+        "floatPL_profit": "กำไร",
         "floating_pl": "กำไร/ขาดทุนลอยตัว",
+        "funds_title": "กองทุน",
         "loss_legend": "การสูญเสีย",
         "month_profit": "ปิด P / L",
         "other": "คนอื่น",
+        "overview_dw": "ฝาก/ถอน",
         "profit_legend": "กำไร",
         "range_total": "รวม",
         "short_All": "สั้น",
         "symbol_noun": "เครื่องหมาย",
         "timezone": "โซนเวลาของเซิร์ฟเวอร์",
+        "top_instrument": "เครื่องหมาย",
         "total_profit": "กำไร/ขาดทุนที่เกิดขึ้นแล้ว",
         "trades": "การค้า",
         "trading_weeks": "ระยะเวลา",
@@ -530,7 +574,8 @@
         "floating_PL": "ลอยตัว P/L",
         "follower": {
           "account_count": "{count} คัดลอกการซื้อขาย",
-          "info_a_week": "โดย {ratio_value} ,{week_count} สัปดาห์, {signal_name}"
+          "info_a_week": "โดย {ratio_value} ,{week_count} สัปดาห์, {signal_name}",
+          "info_weeks": "โดย {ratio_value} ,{week_count} สัปดาห์, {signal_name}"
         },
         "history": "ประวัติการคัดลอกการค้า",
         "not_setup_title": "คัดลอกการค้าไม่ได้ตั้งค่า",
@@ -584,6 +629,7 @@
         "title": "ิยินดีต้อนรับสู่ Acts"
       },
       "tip_buttontext": "เข้าร่วมเดี๋ยวนี้",
+      "tip_content": "คุณจะได้รับเครดิตโบนัส 50% หรือสูงถึง $10,000 จากเงินฝากทั้งหมดของคุณที่มากกว่า 200 USD ภายในระยะเวลา 7 วันนับจากการฝากครั้งแรกของคุณ!",
       "tip_title": "โบนัสต้อนรับ"
     },
     "discover": "ค้นพบ",
@@ -592,11 +638,13 @@
       "always_valid": "ถูกต้องเสมอ",
       "balance": "ยอดรางวัลคงเหลือ",
       "competition_time": "Competition period",
+      "finished": "ที่เสร็จเรียบร้อย",
       "participate": "เข้าร่วม",
       "participate_time": "เวลาเข้าร่วม",
       "participated": "มีส่วนร่วม",
       "participated_in": "Participated in {time}",
       "promotions": "โปรโมชั่น",
+      "promotions_desc": "ค้นพบโปรโมชั่นล่าสุดและสำรวจวิธีการประหยัดในการซื้อขายของคุณ เพลิดเพลินกับแคมเปญพิเศษ เช่น โปรแกรมไม่มีค่าสวอป โบนัสต้อนรับ โบนัสเงินฝาก และอื่นๆ อีกมากมาย",
       "promotions_times": "โปรโมชั่นของฉัน",
       "registration_time": "Registration period",
       "rewards_des": "เข้าร่วมและรับรางวัลมากมาย",
@@ -626,6 +674,7 @@
     "rewards_point_label": "จุด",
     "signal": {
       "recommend_following_count_title": "คัดลอกเทรดเดอร์",
+      "recommend_tips": "ง่ายขึ้น เร็วขึ้น เพิ่มผลกำไรจากการเทรดของคุณ",
       "recommend_title": "คัดลอกการซื้อขาย",
       "recommend_weeks": "สัปดาห์",
       "total_profit": "กำไร/ขาดทุนที่เกิดขึ้นแล้ว"
@@ -642,12 +691,14 @@
     "common": {
       "button_save": "บันทึก",
       "chat_connect_status_reconnect": "คลิกเพื่อลองเชื่อมต่อใหม่",
+      "group_chat": "แชทกลุ่ม",
       "label_admin": "แอดมิน",
       "label_owner": "เจ้าของ",
       "network_error": "เครือข่ายผิดพลาด",
       "save_success": "บันทึกเรียบร้อยแล้ว",
       "shared_successfully": "แชร์สำเร็จ",
-      "title_recent": "ล่าสุด"
+      "title_recent": "ล่าสุด",
+      "title_remark": "Additional Name"
     },
     "contacts": {
       "button_invite_now": "เชิญเลย",
@@ -661,6 +712,7 @@
       "no_contacts": "ยังไม่มีการติดต่อ",
       "permission_save_contacts": "Allow Access to your mobile phone contacts so you can share with them more easily.",
       "pop_button_cancel": "Don't Allow",
+      "pop_title": "\"Acts\" Would Like to Access Your Contacts",
       "result": "ผลลัพธ์",
       "sort_type_join": "เข้าร่วม",
       "sort_type_login": "เข้าร่วม",
@@ -686,10 +738,12 @@
       "chat_input_hint": "ข้อความ",
       "chat_message_at_me": "[คุณถูกกล่าวถึง]",
       "chat_message_content_draft": "[ร่าง]",
+      "chat_message_recall": "{user} เรียกคืนข้อความ",
       "chat_message_recall_mine": "คุณจำข้อความได้",
       "chat_recall": "จำ",
       "chat_reply": "ตอบกลับ",
       "chat_report_message": "รายงาน",
+      "chat_unknown_message": "เวอร์ชันปัจจุบันไม่รองรับข้อความประเภทนี้",
       "digest_group_notice": "[ประกาศกลุ่ม]",
       "digest_image": "[ภาพ]",
       "digest_robot": "การแปลงธุรกรรม",
@@ -712,7 +766,8 @@
       "unable_to_send_folder": "ไม่สามารถส่งโฟลเดอร์: {file_name}",
       "upload_count_tip": "Upload up to 5 files at the same time!",
       "upload_failed": "การอัปโหลดล้มเหลว โปรดอัปโหลดอีกครั้ง",
-      "upload_size_tip": "ขนาดไฟล์เกิน {max size}M โปรดอัปโหลดอีกครั้ง"
+      "upload_size_tip": "ขนาดไฟล์เกิน {max size}M โปรดอัปโหลดอีกครั้ง",
+      "uploading": "กำลังอัพโหลด"
     },
     "forward": {
       "button_send": "ส่ง",
@@ -737,6 +792,7 @@
         "button_left": "ออกจากกลุ่ม",
         "mute": "ปิดเสียงการแจ้งเตือน",
         "pin_group": "ปักหมุดกลุ่ม",
+        "qr_code": "QR Code ของกลุ่ม",
         "tip_disband_group": "คุณแน่ใจหรือว่าต้องการยุบกลุ่ม?",
         "tip_exit_group": "คุณจะไม่ได้รับข้อความจากการแชทกลุ่มนี้อีกต่อไปหลังจากลบและออก",
         "title": "กลุ่ม"
@@ -744,7 +800,9 @@
       "join": {
         "button_apply": "นำมาใช้",
         "button_join": "เข้าร่วม",
+        "got_it": "เข้าใจแล้ว",
         "group_info": "ข้อมูลกลุ่ม",
+        "tip_reached_member_limits": "กลุ่มปัจจุบันมีสมาชิกถึงขีดจำกัดแล้ว กรุณาสำรวจกลุ่มอื่นๆ",
         "tip_wait_for_review": "ส่งใบสมัครแล้ว กรุณารอแอดมินตรวจสอบ"
       },
       "members": {
@@ -756,7 +814,8 @@
         "alert_title_clear": "คุณแน่ใจว่าจะล้างคำประกาศกลุ่มหรือไม่?",
         "alert_title_save": "คุณต้องการบันทึกการเปลี่ยนแปลงหรือไม่",
         "placeholder_edit": "แก้ไขข้อมูลกลุ่ม",
-        "placeholder_no_group": "ไม่ได้ตั้งค่าการแจ้งเตือนกลุ่ม"
+        "placeholder_no_group": "ไม่ได้ตั้งค่าการแจ้งเตือนกลุ่ม",
+        "title": "ประกาศกลุ่ม"
       },
       "notification": "การแจ้งเตือนกลุ่ม",
       "tip_left_group_failed": "ออกจากกลุ่มล้มเหลว"
@@ -771,6 +830,7 @@
     },
     "notification": {
       "button_push_open": "ไป",
+      "default_new_message_title": "ข้อความใหม่",
       "new_message": "การแจ้งเตือนข้อความใหม่",
       "push_receive_desc": "รับการแจ้งเตือนแบบพุชจาก dcfx labuan",
       "push_title": "การแจ้งเตือนแบบพุช",
@@ -789,8 +849,10 @@
       "block_message": "บล็อกข้อความ",
       "bot_text_type": "ประเภทการแจ้งเตือน",
       "bot_text_type_content": "รายละเอียด",
+      "bot_text_type_trade_trans": "การแปลงธุรกรรม",
       "button_edit": "แก้ไข",
       "button_messages": "ข้อความ",
+      "chat_setting": "การตั้งค่าการแชท",
       "delete_chat": "ลบแชท",
       "desc_enter_to_send": "คลิกปุ่ม Enter เพื่อส่งข้อความ",
       "desc_message_notification": "เปิดใช้งานเสียงเตือนสำหรับข้อความที่เข้ามา",
@@ -813,9 +875,11 @@
       "tip_save_failed": "บันทึกไม่สำเร็จ",
       "tip_save_success": "บันทึกเรียบร้อยแล้ว",
       "tip_setting_sucess": "การตั้งค่าความสำเร็จ",
+      "tip_welcome_message": "เมื่อผู้อ้างอิงลงทะเบียนกับ dcfx labuan สำเร็จ ข้อความจะถูกส่งไปยังพวกเขาโดยอัตโนมัติ",
       "title": "การตั้งค่าข้อความ",
       "title_enter_to_send": "เข้ามาเพื่อส่ง",
       "title_message_notification": "การแจ้งเตือนข้อความ",
+      "title_pin_messages": "ปักหมุดข้อความ",
       "top_message_pinned_cancel": "ข้อความที่ปักหมุดถูกปิด",
       "top_message_pinned_success": "เปิดใช้งาน",
       "unblock": "เลิกบล็อก",
@@ -839,11 +903,14 @@
   "login": {
     "change_email": {
       "change_title": "เปลี่ยนอีเมล",
+      "enter_new_email": "โปรดป้อนที่อยู่อีเมลใหม่ของคุณ",
+      "tip_change_success": "คุณเปลี่ยนที่อยู่อีเมลสำเร็จแล้ว",
       "verify_backup_email": "ยืนยันอีเมลสำหรับการแจ้งเตือนและข้อมูล",
       "verify_current_email": "โปรดยืนยันที่อยู่อีเมลปัจจุบัน",
       "verify_title": "การยืนยัน"
     },
     "change_mobile": {
+      "bind_title": "เปลี่ยนเบอร์มือถือ",
       "enter_new_mobile": "กรุณากรอกหมายเลขโทรศัพท์มือถือใหม่ของคุณ",
       "tip_change_success": "คุณเปลี่ยนโทรศัพท์สำเร็จแล้ว",
       "verify_bind_mobile": "ตรวจสอบหมายเลขโทรศัพท์มือถือสำหรับการแจ้งเตือนและข้อมูล",
@@ -853,6 +920,7 @@
     "common": {
       "button_get": "รับ",
       "button_login": "เข้าสู่ระบบ",
+      "button_next": "ขั้นตอนต่อไป",
       "button_register": "ลงชื่อ",
       "button_resend": "ส่งซ้ำ",
       "label_email_address": "ที่อยู่อีเมล",
@@ -875,7 +943,8 @@
     },
     "forget_password": {
       "content": "รับรหัสยืนยันผ่านหมายเลขโทรศัพท์มือถือหรือที่อยู่อีเมล",
-      "label_via": "ทาง"
+      "label_via": "ทาง",
+      "title": "ลืมรหัสผ่าน"
     },
     "guide": {
       "button_login": "เข้าสู่ระบบ",
@@ -891,13 +960,16 @@
     "loginpage": {
       "button_forgot_password": "ลืมรหัสผ่าน?",
       "button_login_via_email": "เข้าสู่ระบบด้วยที่อยู่อีเมล",
+      "button_login_via_mobile": "ลงชื่อเข้าใช้ผ่านหมายเลขโทรศัพท์",
       "title": "เข้าสู่ระบบ"
     },
     "otp": {
       "button_other_methods": "วิธีการอื่นๆ",
+      "button_switch_method": "สลับวิธี otp",
       "email_receive_type": "spam mailbox, trash, archived and promotions",
       "label_attention_email": "โปรดจับตาดูอีเมลของคุณ",
       "label_attention_phone_call": "กำลังโทร... โปรดใส่ใจกับการโทรของคุณ",
+      "label_attention_phone_message": "โปรดใส่ใจในการตรวจสอบข้อความโทรศัพท์มือถือของคุณ",
       "label_attention_whatsapp": "โปรดใส่ใจในการตรวจสอบข้อความ WhatsApp",
       "send_to_phone": "ส่ง SMS",
       "send_to_voice": "Send to Voice",
@@ -917,6 +989,7 @@
     "password": {
       "change_title": "รหัสผ่าน",
       "character_rule": "รหัสผ่านจะต้องมีอักขระจากสองในสี่หมวดหมู่ต่อไปนี้: ตัวพิมพ์ใหญ่ AZ, ตัวพิมพ์เล็ก az ,ตัวเลข 0-9, อักขระพิเศษ (~, !, $, #, % ฯลฯ)",
+      "label_repeat_password": "ทำซ้ำรหัสผ่านของคุณ",
       "length_rule": "รหัสผ่านต้องมีอักขระ 8-15 ตัว",
       "repet_password_not_match": "รหัสผ่านซ้ำไม่ตรงกัน",
       "reset_title": "รีเซ็ตรหัสผ่าน",
@@ -953,10 +1026,12 @@
       "label_sell_stop": "Sell stop",
       "label_sell_stop_limit": "Sell stop limit",
       "label_stop_loss": "หยุดการสูญเสีย",
+      "label_take_profit": "ทำกำไร",
       "label_volume": "ปริมาณ",
       "label_watchlist": "รายการเฝ้าดู",
       "placeholder_set": "ชุด",
       "symbol_type_commodities": "สินค้าโภคภัณฑ์",
+      "symbol_type_cryptos": "สกุลเงินดิจิทัล",
       "symbol_type_eustocks": "EUStocks",
       "symbol_type_forex": "ฟอเร็กซ์",
       "symbol_type_futures": "Futures",
@@ -971,6 +1046,7 @@
       "tip_account_readonly": "บัญชีของคุณถูกจำกัดให้อ่านอย่างเดียว",
       "tip_connect_failed": "การเชื่อมต่อล้มเหลว.",
       "tip_copy_account_readonly": "การคัดลอกบัญชีไม่สามารถส่งคำสั่งซื้อได้อย่างอิสระ และไม่สามารถถอนเงินได้ในระหว่างการคัดลอกธุรกรรม",
+      "tip_demo_account_expired": "บัญชีทดลองนี้หมดอายุแล้ว",
       "tip_invalid_stop_loss": "Stop Loss ไม่ถูกต้อง",
       "tip_invalid_take_profit": "Take Profit ที่ไม่ถูกต้อง",
       "tips_one_symbol": "โปรดเก็บเครื่องมือไว้อย่างน้อยหนึ่งเครื่อง",
@@ -978,6 +1054,8 @@
       "total_profit": "กำไร/ขาดทุนที่เกิดขึ้นแล้ว",
       "weekday_friday": "วันศุกร์",
       "weekday_monday": "วันจันทร์",
+      "weekday_saturday": "วันเสาร์",
+      "weekday_sunday": "วันอาทิตย์",
       "weekday_thursday": "วันพฤหัสบดี",
       "weekday_tuesday": "วันอังคาร",
       "weekday_wednesday": "วันพุธ"
@@ -1001,6 +1079,7 @@
       "label_hedging_margin": "มาร์จิ้นป้องกันความเสี่ยง",
       "label_high": "HIGH",
       "label_leverage_limit": "ขีดจำกัดเลเวอเรจ",
+      "label_low": "LOW",
       "label_maintenance_margin": "ค่าบำรุงรักษา",
       "label_margin_per_log": "${value} per lot",
       "label_margin_requirement": "ข้อกำหนดมาร์จิ้น",
@@ -1008,6 +1087,7 @@
       "label_min_price_inc": "การเพิ่มราคาขั้นต่ำ",
       "label_min_volume": "ขนาดการค้าขั้นต่ำต่อคำสั่งซื้อ",
       "label_not_applicable": "ไม่สามารถใช้ได้",
+      "label_overnight_hedging_margin": "Overnight Hedging Margin",
       "label_overnight_margin": "มาร์จิ้นวันหยุดสุดสัปดาห์",
       "label_pip_value": "มูลค่า Pip ต่อล็อต",
       "label_points": "คะแนน",
@@ -1025,9 +1105,11 @@
       "swapmode_by_percentage": "ตามเปอร์เซ็นต์",
       "swapmode_in_dollar": "เป็นดอลลาร์",
       "swapmode_in_points": "เป็น Point",
+      "tip_add_failed": "เพิ่มล้มเหลว",
       "tip_demo_account_expired": "เพื่อประสบการณ์ที่สมบูรณ์ในการซื้อขาย โปรดเปิดบัญชีจริง",
       "tip_limit_price": "ราคา Limit อย่างน้อย {value} จากราคาปัจจุบัน",
       "tip_price_range": "ต่ำกว่า {below} หรือสูงกว่า {above}",
+      "tip_reapply_demo_failed": "สร้างบัญชีทดลองไม่สำเร็จ",
       "tip_reapply_demo_success": "สร้างบัญชีทดลองสำเร็จ",
       "tip_volume_less_than_min": "จำนวนล็อตต้องไม่น้อยกว่าขั้นต่ำ",
       "tip_volume_more_than_max": "จำนวนล็อตต้องไม่เกินจำนวนสูงสุด",
@@ -1041,6 +1123,7 @@
       "title_quote_session": "เซสชันการเสนอราคา",
       "title_sorry": "เสียใจ!",
       "title_specification": "รายละเอียดสัญลักษณ์",
+      "title_specifications": "รายละเอียด",
       "title_trading_session": "ช่วงการซื้อขาย"
     }
   },
@@ -1074,11 +1157,14 @@
       "other": "Other",
       "pie": {
         "balance": "Balance",
+        "funds": "$",
+        "registration": "Registration",
         "symbols": "Symbols",
         "verified": "User",
         "volume": "Volume"
       },
       "registration": "New Registration",
+      "symbols": "Popular symbols",
       "symbols_tips": "symbols tips",
       "verified": "Verified",
       "volume": "Volume"
@@ -1086,6 +1172,7 @@
     "funds": {
       "deposit_of_time": "เงินฝาก {time}",
       "filter_all": "ทั้งหมด",
+      "filter_completed": "ประสบความสำเร็จ",
       "filter_processing": "กำลังประมวลผล",
       "label_account_no": "เลขที่บัญชี",
       "label_complete": "สมบูรณ์",
@@ -1095,6 +1182,7 @@
       "label_transfer_amount": "จำนวนเงินที่โอน",
       "label_withdrawal_amount": "จำนวนเงินที่ถอน",
       "status": "Status",
+      "status_expired": "ไม่สมบูรณ์",
       "status_rejected": "ไม่สำเร็จ",
       "withdrawal_of_time": "การถอนเงิน {time}"
     },
@@ -1107,6 +1195,7 @@
       "unlock_tips": "อัปเกรดการเป็นสมาชิกของคุณเพื่อรับสิทธิประโยชน์เพิ่มเติม"
     },
     "main": {
+      "amount": "Amount",
       "button_IB_level": "ระดับไอบี",
       "button_account": "Account",
       "button_dashboard": "Dashboard",
@@ -1145,9 +1234,11 @@
     "referral": {
       "action_less": "น้อย",
       "action_more": "มากกว่า",
+      "activity": "กิจกรรม",
       "button_filter": "กรอง",
       "filter": {
         "activity": "Activity",
+        "country": "Country",
         "level": "Level",
         "markup": "Mark up",
         "not_verified": "Not verified",
@@ -1177,6 +1268,7 @@
     "search": {
       "history": "ประวัติศาสตร์",
       "no_history": "ลองค้นหาชื่อ หมายเลขโทรศัพท์ หรืออีเมล",
+      "no_result_descrition": "ลองใช้คำพ้องหรือคำหลักที่กว้างกว่านี้",
       "no_result_title": "ไม่มีผลลัพธ์สำหรับ {result}",
       "placeholder": "ค้นหาชื่อ มือถือ อีเมล UID",
       "result": "ผลลัพธ์"
@@ -1213,6 +1305,7 @@
       "revised_from": "แก้ไขจาก {value}",
       "tip_add_failed": "Fไม่สามารถเพิ่ม",
       "tip_add_success": "ปฏิทินเพิ่มความสำเร็จ",
+      "tip_delete_success": "การลบปฏิทินสำเร็จ",
       "tip_user_deny": "ผู้ใช้ปฏิเสธ",
       "title": "ปฏิทิน"
     },
@@ -1232,6 +1325,7 @@
       "tab_live": "สด",
       "tab_market_analysis": "ข่าว",
       "tab_newsflash": "ข่าวด่วน",
+      "tab_signal": "สัญญาณ",
       "tab_video": "วีดีโอ",
       "title": "ข้อมูลเชิงลึก",
       "title_category": "หมวดหมู่ของฉัน"
@@ -1248,7 +1342,8 @@
       "label_saved": "บันทึกแล้ว"
     },
     "recommend": {
-      "tip_no_results": "คำที่คุณป้อนไม่แสดงผลลัพธ์ใดๆ ลองใช้คำค้นหาอื่น"
+      "tip_no_results": "คำที่คุณป้อนไม่แสดงผลลัพธ์ใดๆ ลองใช้คำค้นหาอื่น",
+      "title": "ที่แนะนำ"
     },
     "search": {
       "label_history": "ประวัติศาสตร์",
@@ -1257,7 +1352,8 @@
       "tip_cancelled": "ยกเลิก",
       "tip_no_history": "ไม่มีการค้นหาประวัติ",
       "tip_no_results": "ไม่มีผลลัพธ์สำหรับ &{key}&",
-      "tip_save_failed": "บันทึกไม่สำเร็จ"
+      "tip_save_failed": "บันทึกไม่สำเร็จ",
+      "tip_save_success": "บันทึกเรียบร้อยแล้ว"
     },
     "signal": {
       "close_price": "ราคาปิด",
@@ -1268,6 +1364,7 @@
       "closed_pl_today": "ปิด P/L ของวันนี้",
       "closed_pl_total": "P/L ที่ปิดแล้วของทั้งหมด",
       "closed_pl_week": "ปิด P/L ของสัปดาห์",
+      "open_time": "เวลาเปิดทำการ",
       "send_time": "ส่งเวลา",
       "tab_history": "ประวัติศาสตร์",
       "tab_new": "New",
@@ -1277,6 +1374,7 @@
   },
   "notification": {
     "pop_turn_on": {
+      "button_turn_on": "เปิด",
       "content": "1. ข้อมูลตลาดแบบเรียลไทม์n2. รับข้อมูลเกี่ยวกับกิจกรรมทางการตลาดทันทีn3. การแจ้งเตือนทันเวลาจากฝ่ายบริการลูกค้า",
       "title": "เปิดการแจ้งเตือนสำหรับ:"
     },
@@ -1299,8 +1397,10 @@
     "beneficiary_account_sub": "จัดการรายละเอียดบัญชีผู้รับผลประโยชน์ของคุณ",
     "cache": "แคช",
     "cache_cleaned_success": "ล้างแคช",
+    "cleaning_cache": "ทำความสะอาดแคช",
     "company": "บริษัท",
     "company_sub": "ดูข้อมูลเกี่ยวกับ dcfx labuan",
+    "cryptocurrency_sub_title": "เพิ่มกระเป๋าเงินดิจิตอลสำหรับการฝากและถอนเงิน",
     "cryptocurrency_title": "กระเป๋าเงิน Cryptocurrency",
     "identity_verification": "การยืนยันตัวตน",
     "identity_verification_desc": "รายละเอียดตัวตนของคุณ",
@@ -1315,6 +1415,7 @@
       "title": "การแจ้งเตือน"
     },
     "one_click_switch": "การซื้อขายด้วยคลิกเดียว",
+    "one_click_trading_tip": "เมื่อเปิดใช้งานแล้ว ไม่จำเป็นต้องมีข้อมูลเพิ่มเติมเมื่อเปิดหรือปิดคำสั่งซื้อขาย",
     "one_click_trading_title": "One-click trading",
     "personal_info": "ส่วนตัว",
     "personal_info_sub": "การยืนยันตัวตนหรือหนังสือเดินทาง ที่อยู่ หมายเลขโทรศัพท์มือถือ และที่อยู่อีเมล",
@@ -1325,6 +1426,7 @@
       "password": "รหัสผ่าน",
       "password_content": "เปลี่ยน",
       "pic": "รูปประวัติ",
+      "region": "ประเทศหรือภูมิภาค",
       "security_title": "ความปลอดภัย",
       "uid": "UID"
     },
@@ -1339,6 +1441,7 @@
     },
     "sign_out": "ออกจากระบบ",
     "sign_out_desc": "คุณแน่ใจไหม?",
+    "system_notification": "การแจ้งเตือนแบบพุชของระบบ",
     "system_notification_desc": "สามารถรับบัญชี การซื้อขาย เงินทุน และโปรโมชั่นได้",
     "theme": {
       "dark": "มืด",
@@ -1349,6 +1452,7 @@
     "theme_model": "รูปร่าง",
     "trade_sound_switch": "เสียง",
     "trading_rules": "การซื้อขาย",
+    "trading_rules_sub": "ตราสาร เลเวอเรจ และรายละเอียดมาร์จิ้น",
     "transaction": "ประสบการณ์การเทรด",
     "transaction_desc": "ธุรกรรมและทรัพย์สินของคุณ",
     "version": "เวอร์ชั่น"

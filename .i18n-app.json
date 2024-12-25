@@ -1,9 +1,9 @@
 {
   "host": "https://backoffice.devactstrade.com",
-  "subSystemName": "app_test",
+  "subSystemName": "app",
   "productCode": "bos",
   "productId": 1,
-  "versionNo": "1.0.0",
+  "versionNo": "1.1.0",
   "baseLanguage": "en-US",
   "previewMode": "1",
   "include": [

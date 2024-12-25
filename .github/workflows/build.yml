@@ -36,66 +36,41 @@ jobs:
     needs: changelog
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest]
         include:
-          - platform: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            artifact_name: i18n-app-linux-x86_64
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: i18n-app-windows-x86_64.exe
           - platform: macos-latest
             target: aarch64-apple-darwin
             artifact_name: i18n-app-darwin-aarch64
     runs-on: ${{ matrix.platform }}
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      RUSTC_WRAPPER: "sccache"
-      CARGO_INCREMENTAL: "0"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
-
-      - name: Install sccache
-        uses: mozilla-actions/sccache-action@v0.0.3
-
       - name: Install Rust
         run: rustup toolchain install stable --component llvm-tools-preview
-
       - name: Add target
         run: rustup target add ${{ matrix.target }}
-
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
-
       - name: install nextest
         uses: taiki-e/install-action@nextest
-
       - uses: Swatinem/rust-cache@v2
-        with:
-          cache-directories: |
-            ~/.cache/sccache
-
       - name: Check code format
         run: cargo fmt -- --check
-
       - name: Check the package for errors
         run: cargo check --all
-
       - name: Lint rust sources
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
-
       - name: Execute rust tests
         run: cargo nextest run --all-features
-
       - name: Build release binary
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cargo build --release --target ${{ matrix.target }}
-          cp target/${{ matrix.target }}/release/i18n-app ${{ matrix.artifact_name }}
-
-      - name: Show sccache stats
-        run: sccache --show-stats
-
+          ${{ matrix.platform == 'windows-latest' && 'copy' || 'cp' }} target/${{ matrix.target }}/release/${{ matrix.platform == 'windows-latest' && 'i18n-app.exe' || 'i18n-app' }} ${{ matrix.artifact_name }}
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

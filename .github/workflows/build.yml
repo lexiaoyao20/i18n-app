@@ -61,7 +61,7 @@ jobs:
         id: git-cliff
         with:
           config: cliff.toml
-          args: -vv --latest --strip header
+          args: --tag ${{ github.ref_name }} --strip header
         env:
           OUTPUT: CHANGES.md
 

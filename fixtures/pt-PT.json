@@ -333,6 +333,8 @@
         "volume": "Volume"
       }
     },
+    "test110_1": "1.1.0 新增翻译 test1",
+    "test110_2": "1.1.0 新增翻译 test2",
     "time": {
       "all": "Todos",
       "day": "{day}d",

@@ -3,6 +3,7 @@ use anyhow::{anyhow, Result};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::Path;
 
 #[derive(Debug, Serialize)]
 struct ConfigRequest {
@@ -75,12 +76,19 @@ pub async fn upload_translation(config: &Config, translation: &TranslationFile) 
     let client = Client::new();
     let url = format!("{}/api/At.Locazy/cli/terms/upload", config.host);
 
+    // 获取父目录路径
+    let parent_path = Path::new(&translation.relative_path)
+        .parent()
+        .and_then(|p| p.to_str())
+        .unwrap_or("");
+
     let request = UploadRequest {
         sub_system_name: config.sub_system_name.clone(),
         version_no: config.version_no.clone(),
         term_and_text: translation.content.clone(),
         product_code: config.product_code.clone(),
-        path: format!("/json/{}", translation.relative_path),
+        // 只使用父目录路径
+        path: parent_path.to_string(),
         language_code: translation.language_code.clone(),
     };
 
@@ -160,8 +168,9 @@ pub async fn get_translation_config(config: &Config) -> Result<LongPollingRespon
 
     #[cfg(debug_assertions)]
     tracing::debug!(
-        "curl -X POST '{}' -H 'preview: 1' -H 'Content-Type: application/json' -d '{}'",
+        "curl -X POST '{}' -H 'preview: {}' -H 'Content-Type: application/json' -d '{}'",
         url,
+        config.preview_mode,
         serde_json::to_string(&request_body)?
     );
 
@@ -311,22 +320,21 @@ pub async fn download_translation(
     // 解析返回的 JSON
     let json_value: serde_json::Value = serde_json::from_str(&text)?;
 
-    // 从配置文件的 include 模式中提取基础路径
+    // 从配置文件的 include 模式中提取基础路径，并移除末尾的斜杠
     let base_path = config
         .include
         .first()
         .ok_or_else(|| anyhow!("No include patterns configured"))?
-        .replace("*.json", "");
+        .replace("*.json", "")
+        .trim_end_matches('/')
+        .to_string();
 
-    // 构造完整的语言文件路径
-    let lang_path = format!("{}{}.json", base_path, file_group.language_code);
-
-    // 在所有键中查找匹配路径的键
+    // 直接使用 base_path 作为匹配键
     let lang_content = json_value
         .as_object()
         .ok_or_else(|| anyhow!("Response is not a JSON object"))?
         .iter()
-        .find(|(key, _)| key.ends_with(&lang_path))
+        .find(|(key, _)| *key == &base_path)
         .map(|(_, value)| value)
         .ok_or_else(|| anyhow!("Language content not found in response"))?;
 
@@ -354,7 +362,7 @@ mod tests {
                 "versionNo": "1.0.0",
                 "baseLanguage": "en-US",
                 "previewMode": "1",
-                "include": ["*.json"],
+                "include": ["fixtures/*.json"],
                 "exclude": []
             }}"#,
             server_url
@@ -492,9 +500,9 @@ mod tests {
                 file_names: vec!["test.json".to_string()],
             };
 
-            // 模拟服务器响应，使用新的 JSON 结构
+            // 模拟服务器响应，使用正确的路径结构
             let mock_response = r#"{
-                "/json/languages/en-US.json": {
+                "fixtures": {
                     "test": {
                         "key": "Test Value"
                     }

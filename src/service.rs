@@ -61,7 +61,14 @@ impl TranslationService {
 
         // 3. 下载当前服务器翻译到缓存
         tracing::info!("Downloading current translations to cache...");
-        let cached_translations = self.download_to_cache().await?;
+        let cached_translations = match self.download_to_cache().await {
+            Ok(translations) => translations,
+            Err(e) => {
+                tracing::warn!("Failed to download current translations: {}", e);
+                // 如果下载失败，使用空的 HashMap
+                HashMap::new()
+            }
+        };
 
         // 4. 处理每个翻译文件
         for mut local_translation in local_translations {
@@ -114,55 +121,57 @@ impl TranslationService {
                 // 首次上传，上传全部内容
                 self.upload_translation(&local_translation, &full_path)
                     .await?;
-            } else {
+            } else if let Some(cached_translation) = cached_translations.get(lang_code) {
                 // 处理新增的键（只上传本地新增的键，忽略值不同的键）
-                if let Some(cached_translation) = cached_translations.get(lang_code) {
-                    let mut new_keys = HashMap::new();
+                let mut new_keys = HashMap::new();
 
-                    // 只收集远程不存在的键（新增的键）
-                    for (key, value) in &local_translation.content {
-                        if !cached_translation.content.contains_key(key) {
-                            new_keys.insert(key.clone(), value.clone());
-                        }
+                // 只收集远程不存在的键（新增的键）
+                for (key, value) in &local_translation.content {
+                    if !cached_translation.content.contains_key(key) {
+                        new_keys.insert(key.clone(), value.clone());
+                    }
+                }
+
+                if !new_keys.is_empty() {
+                    tracing::info!("发现 {} 个新增的键:", new_keys.len());
+                    for (key, value) in &new_keys {
+                        tracing::info!("  + {}: {}", key, value);
                     }
 
-                    if !new_keys.is_empty() {
-                        tracing::info!("发现 {} 个新增的键:", new_keys.len());
-                        for (key, value) in &new_keys {
-                            tracing::info!("  + {}: {}", key, value);
-                        }
+                    let new_translation = TranslationFile::from_content(
+                        local_translation.language_code.clone(),
+                        local_translation.relative_path.clone(),
+                        new_keys,
+                    );
+                    self.upload_translation(&new_translation, &full_path)
+                        .await?;
+                    tracing::info!("成功上传新增的键 🎉");
+                } else {
+                    tracing::info!("没有发现新增的键");
+                }
 
-                        let new_translation = TranslationFile::from_content(
-                            local_translation.language_code.clone(),
-                            local_translation.relative_path.clone(),
-                            new_keys,
-                        );
-                        self.upload_translation(&new_translation, &full_path)
-                            .await?;
-                        tracing::info!("成功上传新增的键 🎉");
-                    } else {
-                        tracing::info!("没有发现新增的键");
-                    }
-
-                    // 打印值不同的键（仅供参考，不上传）
-                    let mut different_values = Vec::new();
-                    for (key, local_value) in &local_translation.content {
-                        if let Some(remote_value) = cached_translation.content.get(key) {
-                            if local_value != remote_value {
-                                different_values.push((key, local_value, remote_value));
-                            }
-                        }
-                    }
-
-                    if !different_values.is_empty() {
-                        tracing::info!("以下键的值与远程不同（将保持远程值）:");
-                        for (key, local_value, remote_value) in different_values {
-                            tracing::info!("  ~ {}", key);
-                            tracing::info!("    - 本地值: {}", local_value);
-                            tracing::info!("    + 远程值: {}", remote_value);
+                // 打印值不同的键（仅供参考，不上传）
+                let mut different_values = Vec::new();
+                for (key, local_value) in &local_translation.content {
+                    if let Some(remote_value) = cached_translation.content.get(key) {
+                        if local_value != remote_value {
+                            different_values.push((key, local_value, remote_value));
                         }
                     }
                 }
+
+                if !different_values.is_empty() {
+                    tracing::info!("以下键的值与远程不同（将保持远程值）:");
+                    for (key, local_value, remote_value) in different_values {
+                        tracing::info!("  ~ {}", key);
+                        tracing::info!("    - 本地值: {}", local_value);
+                        tracing::info!("    + 远程值: {}", remote_value);
+                    }
+                }
+            } else {
+                // 如果缓存中没有找到对应的翻译，也视为首次上传
+                self.upload_translation(&local_translation, &full_path)
+                    .await?;
             }
         }
 

@@ -1,11 +1,11 @@
 {
   "host": "https://backoffice.devactstrade.com",
-  "subSystemName": "app",
+  "subSystemName": "app_test",
   "productCode": "bos",
   "productId": 1,
   "versionNo": "1.1.0",
   "baseLanguage": "en-US",
-  "previewMode": "1",
+  "previewMode": "0",
   "include": [
     "fixtures/*.json"
   ],

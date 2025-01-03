@@ -1,6 +1,6 @@
 [package]
 name = "i18n-app"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["Bob <subo@vanelink.net>"]
 edition = "2021"
 license = "MIT"

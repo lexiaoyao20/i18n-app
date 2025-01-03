@@ -93,29 +93,24 @@ pub async fn upload_translation(config: &Config, translation: &TranslationFile) 
 
     // 添加更详细的上传信息日志
     tracing::info!(
-        "Uploading translation for language: {}, path: {}, terms count: {}",
+        "Uploading {} keys for language: {}, path: {}",
+        translation.content.len(),
         translation.language_code,
-        translation.relative_path,
-        translation.content.len()
+        translation.relative_path
     );
-
     tracing::info!(
-        "Uploading Keys: {:?}",
+        "Keys to upload: {:?}",
         translation.content.keys().collect::<Vec<_>>()
     );
 
-    // 打印请求内容
-    tracing::debug!(
-        "Upload request content: {}",
-        serde_json::to_string_pretty(&request)?
-    );
-
+    // 在 debug 模式下打印具体要上传的内容
     #[cfg(debug_assertions)]
-    tracing::debug!(
-        "curl -X POST '{}' -H 'Content-Type: application/json' -d '{}'",
-        url,
-        serde_json::to_string(&request)?
-    );
+    {
+        tracing::debug!(
+            "Upload request content: {}",
+            serde_json::to_string_pretty(&request)?
+        );
+    }
 
     let response = match client.post(&url).json(&request).send().await {
         Ok(resp) => resp,

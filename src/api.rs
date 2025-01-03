@@ -87,15 +87,27 @@ pub async fn upload_translation(config: &Config, translation: &TranslationFile) 
         version_no: config.version_no.clone(),
         term_and_text: translation.content.clone(),
         product_code: config.product_code.clone(),
-        // 只使用父目录路径
         path: parent_path.to_string(),
         language_code: translation.language_code.clone(),
     };
 
+    // 添加更详细的上传信息日志
     tracing::info!(
-        "Uploading translation for language: {}, path: {}",
+        "Uploading translation for language: {}, path: {}, terms count: {}",
         translation.language_code,
-        translation.relative_path
+        translation.relative_path,
+        translation.content.len()
+    );
+
+    tracing::info!(
+        "Uploading Keys: {:?}",
+        translation.content.keys().collect::<Vec<_>>()
+    );
+
+    // 打印请求内容
+    tracing::debug!(
+        "Upload request content: {}",
+        serde_json::to_string_pretty(&request)?
     );
 
     #[cfg(debug_assertions)]

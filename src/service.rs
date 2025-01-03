@@ -172,6 +172,16 @@ impl TranslationService {
             }
         }
 
+        // 6. 清理缓存目录
+        let cache_dir = PathBuf::from(".i18n-app").join("cache");
+        if cache_dir.exists() {
+            if let Err(e) = std::fs::remove_dir_all(&cache_dir) {
+                tracing::warn!("Failed to clean cache directory: {}", e);
+            } else {
+                tracing::info!("Cache directory cleaned successfully");
+            }
+        }
+
         Ok(())
     }
 
@@ -472,7 +482,8 @@ impl TranslationService {
                             self.print_json_diff(&local_json, &remote_json, lang_code);
 
                             // 合并本地和远程内容
-                            let merged_content = self.merge_json_content(&local_json, &remote_json);
+                            let merged_content =
+                                Self::merge_json_content(&local_json, &remote_json);
 
                             // 确保目标目录存在
                             if let Some(parent) = target_path.parent() {
@@ -624,51 +635,77 @@ impl TranslationService {
         }
     }
 
-    // 添加新的辅助方法来合并 JSON 内容
+    // 将方法改为静态方法
     fn merge_json_content(
-        &self,
         local: &serde_json::Value,
         remote: &serde_json::Value,
     ) -> serde_json::Value {
-        // 将递归逻辑移到内部函数
-        fn merge_values(
-            local: &serde_json::Value,
-            remote: &serde_json::Value,
-        ) -> serde_json::Value {
-            match (local, remote) {
-                (serde_json::Value::Object(local_map), serde_json::Value::Object(remote_map)) => {
-                    let mut merged = serde_json::Map::new();
+        match (local, remote) {
+            (serde_json::Value::Object(local_map), serde_json::Value::Object(remote_map)) => {
+                let mut merged = serde_json::Map::new();
 
-                    // 首先添加所有本地键值对
-                    for (key, local_value) in local_map {
-                        merged.insert(key.clone(), local_value.clone());
-                    }
-
-                    // 然后处理远程键值对
-                    for (key, remote_value) in remote_map {
-                        match (local_map.get(key), remote_value) {
-                            // 如果两边都是对象，递归合并
-                            (Some(local_value), remote_value)
-                                if local_value.is_object() && remote_value.is_object() =>
-                            {
-                                merged.insert(key.clone(), merge_values(local_value, remote_value));
+                // 处理所有本地键
+                for (key, local_value) in local_map {
+                    if let Some(remote_value) = remote_map.get(key) {
+                        // 如果远程也有这个键
+                        match (local_value, remote_value) {
+                            (serde_json::Value::Object(_), serde_json::Value::Object(_)) => {
+                                // 递归合并对象
+                                merged.insert(
+                                    key.clone(),
+                                    Self::merge_json_content(local_value, remote_value),
+                                );
                             }
-                            // 如果远程有值，使用远程的值（覆盖本地的非对象值）
-                            (_, remote_value) => {
+                            (_, serde_json::Value::String(remote_str)) => {
+                                // 如果远程值是字符串
+                                if remote_str.trim().is_empty() {
+                                    // 如果远程值为空，保留本地值
+                                    merged.insert(key.clone(), local_value.clone());
+                                    tracing::debug!(
+                                        "Keeping local value for empty remote key: {}",
+                                        key
+                                    );
+                                } else {
+                                    // 否则使用远程值
+                                    merged.insert(key.clone(), remote_value.clone());
+                                }
+                            }
+                            _ => {
+                                // 其他情况使用远程值
                                 merged.insert(key.clone(), remote_value.clone());
                             }
                         }
+                    } else {
+                        // 如果远程没有这个键，保留本地值
+                        merged.insert(key.clone(), local_value.clone());
                     }
-
-                    serde_json::Value::Object(merged)
                 }
-                // 如果不是对象类型，保留本地值
-                (local, _) => local.clone(),
-            }
-        }
 
-        // 调用内部函数
-        merge_values(local, remote)
+                // 添加远程独有的键
+                for (key, remote_value) in remote_map {
+                    if !local_map.contains_key(key) {
+                        if let serde_json::Value::String(remote_str) = remote_value {
+                            if !remote_str.trim().is_empty() {
+                                // 只添加非空的远程值
+                                merged.insert(key.clone(), remote_value.clone());
+                            }
+                        } else {
+                            merged.insert(key.clone(), remote_value.clone());
+                        }
+                    }
+                }
+
+                serde_json::Value::Object(merged)
+            }
+            // 如果远程值是空字符串，保留本地值
+            (local_value, serde_json::Value::String(remote_str))
+                if remote_str.trim().is_empty() =>
+            {
+                local_value.clone()
+            }
+            // 其他情况使用远程值
+            (_, remote_value) => remote_value.clone(),
+        }
     }
 
     // 改为公共方法
@@ -704,8 +741,7 @@ mod tests {
 
     #[test]
     fn test_merge_json_content() {
-        let service = create_test_service();
-
+        // 不需要创建 service 实例
         // 测试场景 1: 基本合并
         let local = json!({
             "common": {
@@ -725,7 +761,7 @@ mod tests {
             }
         });
 
-        let merged = service.merge_json_content(&local, &remote);
+        let merged = TranslationService::merge_json_content(&local, &remote);
         let merged_obj = merged.as_object().unwrap();
 
         assert!(merged_obj["common"]["time"]["tomorrow"].as_str().unwrap() == "Tomorrow"); // 保留本地独有的键
@@ -751,7 +787,7 @@ mod tests {
             }
         });
 
-        let merged = service.merge_json_content(&local, &remote);
+        let merged = TranslationService::merge_json_content(&local, &remote);
         let merged_obj = merged.as_object().unwrap();
 
         assert!(merged_obj["settings"]["display"]["font"].as_str().unwrap() == "Arial"); // 保留本地独有的键

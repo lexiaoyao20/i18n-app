@@ -81,13 +81,13 @@ pub async fn upload_translation(config: &Config, translation: &TranslationFile) 
         .parent()
         .and_then(|p| p.to_str())
         .unwrap_or("");
-
+    let path = format!("{}/{}", config.path_prefix, parent_path);
     let request = UploadRequest {
         sub_system_name: config.sub_system_name.clone(),
         version_no: config.version_no.clone(),
         term_and_text: translation.content.clone(),
         product_code: config.product_code.clone(),
-        path: parent_path.to_string(),
+        path,
         language_code: translation.language_code.clone(),
     };
 
@@ -336,12 +336,15 @@ pub async fn download_translation(
         .trim_end_matches('/')
         .to_string();
 
-    // 直接使用 base_path 作为匹配键
+    // 拼接路径, config.path_prefix 和 base_path
+    let path = format!("{}/{}", config.path_prefix, base_path);
+
+    // 使用 path 作为匹配键
     let lang_content = json_value
         .as_object()
         .ok_or_else(|| anyhow!("Response is not a JSON object"))?
         .iter()
-        .find(|(key, _)| *key == &base_path)
+        .find(|(key, _)| *key == &path)
         .map(|(_, value)| value)
         .ok_or_else(|| anyhow!("Language content not found in response"))?;
 
@@ -509,7 +512,7 @@ mod tests {
 
             // 模拟服务器响应，使用正确的路径结构
             let mock_response = r#"{
-                "fixtures": {
+                "test/fixtures": {
                     "test": {
                         "key": "Test Value"
                     }

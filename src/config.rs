@@ -33,7 +33,7 @@ impl Default for Config {
             version_no: "1.0.0".to_string(),
             base_language: "en-US".to_string(),
             preview_mode: "1".to_string(),
-            path_prefix: "app".to_string(),
+            path_prefix: "/app".to_string(),
             include: vec![],
             exclude: vec![],
         }

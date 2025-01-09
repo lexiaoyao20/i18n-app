@@ -1,11 +1,11 @@
 {
   "host": "https://backoffice.one.betaactstrade.com",
-  "subSystemName": "app",
+  "subSystemName": "app_test",
   "productCode": "bos",
   "versionNo": "1.0.0",
   "baseLanguage": "en-US",
   "previewMode": "1",
-  "pathPrefix": "app",
+  "pathPrefix": "/app",
   "include": [
     "fixtures/*.json"
   ],

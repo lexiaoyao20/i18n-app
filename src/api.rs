@@ -365,10 +365,10 @@ mod tests {
                 "host": "{}",
                 "subSystemName": "test-system",
                 "productCode": "test",
-                "productId": 1,
                 "versionNo": "1.0.0",
                 "baseLanguage": "en-US",
                 "previewMode": "1",
+                "pathPrefix": "test",
                 "include": ["fixtures/*.json"],
                 "exclude": []
             }}"#,

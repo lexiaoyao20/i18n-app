@@ -15,10 +15,10 @@ fn create_test_config(server_url: &str) -> Result<(TempDir, Config)> {
             "host": "{}",
             "subSystemName": "test-system",
             "productCode": "test",
-            "productId": 1,
             "versionNo": "1.0.0",
             "baseLanguage": "en-US",
             "previewMode": "1",
+            "pathPrefix": "test",
             "include": ["*.json"],
             "exclude": []
         }}"#,

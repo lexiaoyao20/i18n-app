@@ -729,10 +729,10 @@ mod tests {
             host: "https://test.com".to_string(),
             sub_system_name: "test".to_string(),
             product_code: "test".to_string(),
-            product_id: 1,
             version_no: "1.0.0".to_string(),
             base_language: "en-US".to_string(),
             preview_mode: "1".to_string(),
+            path_prefix: "test".to_string(),
             include: vec![],
             exclude: vec![],
         };

@@ -12,14 +12,14 @@ pub struct Config {
     pub sub_system_name: String,
     #[serde(rename = "productCode")]
     pub product_code: String,
-    #[serde(rename = "productId")]
-    pub product_id: i32,
     #[serde(rename = "versionNo")]
     pub version_no: String,
     #[serde(rename = "baseLanguage")]
     pub base_language: String,
     #[serde(rename = "previewMode")]
     pub preview_mode: String,
+    #[serde(rename = "pathPrefix")]
+    pub path_prefix: String,
     pub include: Vec<String>,
     pub exclude: Vec<String>,
 }
@@ -30,10 +30,10 @@ impl Default for Config {
             host: "https://backoffice.devactstrade.com".to_string(),
             sub_system_name: "app".to_string(),
             product_code: "bos".to_string(),
-            product_id: 1,
             version_no: "1.0.0".to_string(),
             base_language: "en-US".to_string(),
             preview_mode: "1".to_string(),
+            path_prefix: "app".to_string(),
             include: vec![],
             exclude: vec![],
         }
@@ -123,10 +123,10 @@ mod tests {
             "host": "https://test.com",
             "subSystemName": "test-system",
             "productCode": "test",
-            "productId": 1,
             "versionNo": "1.0.0",
             "baseLanguage": "en-US",
             "previewMode": "1",
+            "pathPrefix": "test",
             "include": ["*.json"],
             "exclude": []
         }"#;
@@ -137,9 +137,9 @@ mod tests {
         assert_eq!(config.host, "https://test.com");
         assert_eq!(config.sub_system_name, "test-system");
         assert_eq!(config.product_code, "test");
-        assert_eq!(config.product_id, 1);
         assert_eq!(config.base_language, "en-US");
         assert_eq!(config.preview_mode, "1");
+        assert_eq!(config.path_prefix, "test");
 
         Ok(())
     }

@@ -22,21 +22,83 @@ impl TranslationService {
         let cache_dir = PathBuf::from(".i18n-app").join("cache");
         self.prepare_cache_dir(&cache_dir)?;
 
-        let mut cached_files = HashMap::new();
+        let mut cached_files: HashMap<String, TranslationFile> = HashMap::new();
         let config_response = api::get_translation_config(&self.config).await?;
 
-        if let Some(groups) = config_response.data.file_groups {
-            for group in groups {
-                if group.file_names.is_empty() {
-                    tracing::warn!(
-                        "No translation files found for language: {}",
-                        group.language_code
-                    );
+        if let Some(files_to_download) = config_response.data.files {
+            for file_info in files_to_download {
+                if file_info.url.is_empty() {
+                    tracing::warn!("No download url found for language: {}", file_info.lang);
                     continue;
                 }
 
-                self.process_language_group(&group, &cache_dir, &mut cached_files)
-                    .await?;
+                match api::download_translation(&self.config, &file_info.url).await {
+                    Ok(raw_content_string) => {
+                        let full_json_value: serde_json::Value =
+                            serde_json::from_str(&raw_content_string)?;
+                        let lang_key = format!("{}/languages", self.config.path_prefix);
+
+                        if let Some(lang_specific_json_value) = full_json_value.get(&lang_key) {
+                            let mut flattened = HashMap::new();
+                            // 使用提取出的 lang_specific_json_value 进行扁平化
+                            flatten_json_inner(
+                                lang_specific_json_value,
+                                String::new(),
+                                &mut flattened,
+                            );
+                            let flattened_len = flattened.len();
+
+                            if let Some(existing_translation_file) =
+                                cached_files.get_mut(&file_info.lang)
+                            {
+                                existing_translation_file.content.extend(flattened);
+                                tracing::debug!(
+                                    "Merged {} new keys for language {}",
+                                    flattened_len,
+                                    file_info.lang
+                                );
+                            } else {
+                                let translation = TranslationFile::from_content(
+                                    file_info.lang.clone(),
+                                    format!("{}.json", file_info.lang),
+                                    flattened,
+                                );
+                                tracing::debug!(
+                                    "Created new translation for language {} with {} keys",
+                                    file_info.lang,
+                                    translation.content.len()
+                                );
+                                cached_files.insert(file_info.lang.clone(), translation);
+                            }
+
+                            let target_file = cache_dir.join(format!("{}.json", file_info.lang));
+                            // 将提取出的 lang_specific_json_value 写入缓存文件
+                            std::fs::write(
+                                &target_file,
+                                serde_json::to_string_pretty(lang_specific_json_value)?,
+                            )?;
+                            tracing::debug!(
+                                "Cached translation for {} to {}",
+                                file_info.lang,
+                                target_file.display()
+                            );
+                        } else {
+                            tracing::error!(
+                                "Key '{}' not found in downloaded content for language: {}. Raw content: {}",
+                                lang_key,
+                                file_info.lang,
+                                raw_content_string
+                            );
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!(
+                            "Failed to download translation for {}: {}",
+                            file_info.lang,
+                            e
+                        );
+                    }
+                }
             }
         }
 
@@ -185,104 +247,6 @@ impl TranslationService {
         Ok(())
     }
 
-    async fn process_language_group(
-        &self,
-        group: &api::FileGroup,
-        cache_dir: &Path,
-        cached_files: &mut HashMap<String, TranslationFile>,
-    ) -> Result<()> {
-        for file_name in &group.file_names {
-            match api::download_translation(&self.config, group, file_name).await {
-                Ok(content) => {
-                    let json_value: serde_json::Value = serde_json::from_str(&content)?;
-
-                    // 提取翻译内容
-                    let mut flattened = HashMap::new();
-                    flatten_json_inner(&json_value, String::new(), &mut flattened);
-                    let flattened_len = flattened.len(); // 在移动所有权前获取长度
-
-                    // 合并翻译内容
-                    if let Some(existing) = cached_files.get_mut(&group.language_code) {
-                        // 如果已存在该语言的翻译，合并内容
-                        existing.content.extend(flattened);
-                        tracing::debug!(
-                            "Merged {} new keys for language {}",
-                            flattened_len,
-                            group.language_code
-                        );
-                    } else {
-                        // 创建新的翻译文件
-                        let translation = TranslationFile::from_content(
-                            group.language_code.clone(),
-                            format!("{}.json", group.language_code),
-                            flattened,
-                        );
-                        tracing::debug!(
-                            "Created new translation for language {} with {} keys",
-                            group.language_code,
-                            translation.content.len()
-                        );
-                        cached_files.insert(group.language_code.clone(), translation);
-                    }
-
-                    // 缓存到文件
-                    let target_file = cache_dir.join(format!("{}.json", group.language_code));
-                    std::fs::write(&target_file, serde_json::to_string_pretty(&json_value)?)?;
-                    tracing::debug!(
-                        "Cached translation for {} to {}",
-                        group.language_code,
-                        target_file.display()
-                    );
-                }
-                Err(e) => {
-                    tracing::error!(
-                        "Failed to download translation for {}: {}",
-                        group.language_code,
-                        e
-                    );
-                }
-            }
-        }
-        Ok(())
-    }
-
-    #[allow(dead_code)]
-    fn process_downloaded_content(
-        &self,
-        content: &str,
-        group: &api::FileGroup,
-        cache_dir: &Path,
-        cached_files: &mut HashMap<String, TranslationFile>,
-    ) -> Result<()> {
-        let target_file = cache_dir.join(format!("{}.json", group.language_code));
-        let json_value: serde_json::Value = serde_json::from_str(content)?;
-        let lang_key = format!("languages/{}.json", group.language_code);
-
-        if let Some(lang_content) = json_value.get(&lang_key) {
-            let mut content = HashMap::new();
-            flatten_json_inner(lang_content, String::new(), &mut content);
-
-            let translation = TranslationFile::from_content(
-                group.language_code.clone(),
-                format!("{}.json", group.language_code),
-                content,
-            );
-
-            cached_files.insert(group.language_code.clone(), translation);
-
-            let formatted_json = serde_json::to_string_pretty(lang_content)?;
-            std::fs::write(&target_file, formatted_json)?;
-
-            tracing::info!(
-                "Cached translation for {} to {}",
-                group.language_code,
-                target_file.display()
-            );
-        }
-
-        Ok(())
-    }
-
     fn prepare_cache_dir(&self, cache_dir: &PathBuf) -> Result<()> {
         if cache_dir.exists() {
             std::fs::remove_dir_all(cache_dir)?;
@@ -351,52 +315,62 @@ impl TranslationService {
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(".i18n-app").join("preview"));
 
-        // Create or clean the target directory
         if target_dir.exists() {
             tracing::info!("Cleaning target directory: {}", target_dir.display());
             std::fs::remove_dir_all(&target_dir)?;
         }
         std::fs::create_dir_all(&target_dir)?;
 
-        // Get translation configuration
         tracing::info!("Fetching translation configuration...");
         let config_response = api::get_translation_config(&self.config).await?;
 
         let mut success_count = 0;
         let mut failed_count = 0;
 
-        // Download translations for each language
-        if let Some(file_groups) = config_response.data.file_groups {
-            for group in file_groups {
-                for file_name in &group.file_names {
-                    match api::download_translation(&self.config, &group, file_name).await {
-                        Ok(content) => {
-                            let target_file =
-                                target_dir.join(format!("{}.json", group.language_code));
+        if let Some(files_to_download) = config_response.data.files {
+            for file_info in files_to_download {
+                match api::download_translation(&self.config, &file_info.url).await {
+                    Ok(raw_content_string) => {
+                        let full_json_value: serde_json::Value =
+                            serde_json::from_str(&raw_content_string)?;
+                        let lang_key = format!("{}/languages", self.config.path_prefix);
 
-                            // 直接写入内容，因为内容已经在 download_translation 中处理过了
-                            std::fs::write(&target_file, content)?;
+                        if let Some(lang_specific_json_value) = full_json_value.get(&lang_key) {
+                            let target_file = target_dir.join(format!("{}.json", file_info.lang));
+
+                            // 将提取出的 lang_specific_json_value 写入文件
+                            let content_to_write =
+                                serde_json::to_string_pretty(lang_specific_json_value)?;
+                            std::fs::write(&target_file, content_to_write)?;
 
                             tracing::info!(
                                 "Downloaded translation for {} to {}",
-                                group.language_code,
+                                file_info.lang,
                                 target_file.display()
                             );
                             success_count += 1;
-                        }
-                        Err(e) => {
+                        } else {
                             tracing::error!(
-                                "Failed to download translation for {}: {}",
-                                group.language_code,
-                                e
+                                "Key '{}' not found in downloaded content for language: {}. Raw content: {}",
+                                lang_key,
+                                file_info.lang,
+                                raw_content_string
                             );
                             failed_count += 1;
                         }
                     }
+                    Err(e) => {
+                        tracing::error!(
+                            "Failed to download translation for {}: {}",
+                            file_info.lang,
+                            e
+                        );
+                        failed_count += 1;
+                    }
                 }
             }
         } else {
-            tracing::error!("No file groups found in the configuration response");
+            tracing::error!("No files found in the configuration response");
             return Ok(());
         }
 
@@ -412,32 +386,23 @@ impl TranslationService {
 
     /// 同步翻译文件（从服务器同步到本地）
     pub async fn sync_translations(&self) -> Result<()> {
-        // 1. 下载所有翻译到缓存目录
         tracing::info!("正在下载最新翻译...");
         let config_response = api::get_translation_config(&self.config)
             .await
             .context("获取翻译配置失败")?;
 
-        // 检查 fileGroups 是否为空
-        let file_groups = config_response
+        let files_to_download = config_response
             .data
-            .file_groups
+            .files
             .as_ref()
-            .and_then(|groups| {
-                if groups.is_empty() {
-                    None
-                } else {
-                    Some(groups)
-                }
-            })
+            .and_then(|files| if files.is_empty() { None } else { Some(files) })
             .with_context(|| {
                 format!(
-                    "未找到任何翻译文件组。系统名称: '{}', 产品代码: '{}'",
+                    "未找到任何翻译文件。系统名称: '{}', 产品代码: '{}'",
                     self.config.sub_system_name, self.config.product_code
                 )
             })?;
 
-        // 2. 获取需要同步的本地文件列表
         let (base_path, local_files) = self
             .read_local_translations(None)
             .context("读取本地翻译文件失败")?;
@@ -450,49 +415,42 @@ impl TranslationService {
             )
         );
 
-        // 3. 同步每个文件
         let mut success_count = 0;
         let mut failed_count = 0;
 
         for local_file in local_files {
             let lang_code = &local_file.language_code;
 
-            // 查找对应的语言组
-            if let Some(group) = file_groups.iter().find(|g| &g.language_code == lang_code) {
+            if let Some(remote_file_info) = files_to_download.iter().find(|f| &f.lang == lang_code)
+            {
                 let target_path = base_path.join(&local_file.relative_path);
                 tracing::info!("正在同步 {} 到 {}", lang_code, target_path.display());
 
-                // 使用与 download 功能相同的文件名格式
-                for file_name in &group.file_names {
-                    // 下载翻译内容
-                    match api::download_translation(&self.config, group, file_name).await {
-                        Ok(content) => {
-                            // 解析 JSON 内容
-                            let remote_json: serde_json::Value = serde_json::from_str(&content)?;
+                match api::download_translation(&self.config, &remote_file_info.url).await {
+                    Ok(raw_content_string) => {
+                        let full_json_value: serde_json::Value =
+                            serde_json::from_str(&raw_content_string)?;
+                        let lang_key = format!("{}/languages", self.config.path_prefix);
 
-                            // 读取本地文件内容
-                            let local_content = std::fs::read_to_string(&target_path)
+                        if let Some(remote_lang_specific_json) = full_json_value.get(&lang_key) {
+                            let local_content_string = std::fs::read_to_string(&target_path)
                                 .with_context(|| {
                                     format!("读取本地文件 {} 失败", target_path.display())
                                 })?;
                             let local_json: serde_json::Value =
-                                serde_json::from_str(&local_content)?;
+                                serde_json::from_str(&local_content_string)?;
 
-                            // 打印差异信息
-                            self.print_json_diff(&local_json, &remote_json, lang_code);
+                            self.print_json_diff(&local_json, remote_lang_specific_json, lang_code);
 
-                            // 合并本地和远程内容
                             let merged_content =
-                                Self::merge_json_content(&local_json, &remote_json);
+                                Self::merge_json_content(&local_json, remote_lang_specific_json);
 
-                            // 确保目标目录存在
                             if let Some(parent) = target_path.parent() {
                                 std::fs::create_dir_all(parent).with_context(|| {
                                     format!("创建目录 {} 失败", parent.display())
                                 })?;
                             }
 
-                            // 写入合并后的内容
                             let formatted_json = serde_json::to_string_pretty(&merged_content)?;
                             std::fs::write(&target_path, formatted_json).with_context(|| {
                                 format!("写入文件 {} 失败", target_path.display())
@@ -500,12 +458,19 @@ impl TranslationService {
 
                             tracing::info!("成功同步 {}", target_path.display());
                             success_count += 1;
-                            break; // 找到并处理了文件后就跳出循环
-                        }
-                        Err(e) => {
-                            tracing::error!("下载语言 {} 的翻译失败: {}", lang_code, e);
+                        } else {
+                            tracing::error!(
+                                "Key '{}' not found in downloaded content for language: {}. Raw content: {}",
+                                lang_key,
+                                lang_code,
+                                raw_content_string
+                            );
                             failed_count += 1;
                         }
+                    }
+                    Err(e) => {
+                        tracing::error!("下载语言 {} 的翻译失败: {}", lang_code, e);
+                        failed_count += 1;
                     }
                 }
             } else {
@@ -514,7 +479,6 @@ impl TranslationService {
             }
         }
 
-        // 4. 输出最终结果
         ensure!(
             success_count > 0,
             format!(

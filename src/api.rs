@@ -43,33 +43,17 @@ pub struct LongPollingData {
     #[serde(rename = "taskHash")]
     #[allow(dead_code)]
     pub task_hash: Option<String>,
-    pub file_groups: Option<Vec<FileGroup>>,
-    #[allow(dead_code)]
-    pub change_terms: Option<serde_json::Value>,
-    #[serde(rename = "systemInfos")]
-    #[allow(dead_code)]
-    pub system_infos: Option<Vec<SystemInfo>>,
-    #[serde(rename = "querySubSystemInfo")]
-    #[allow(dead_code)]
-    pub query_sub_system_info: SystemInfo,
+    pub files: Option<Vec<FileDownloadInfo>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct SystemInfo {
-    #[allow(dead_code)]
-    pub id: i32,
-    #[allow(dead_code)]
-    pub name: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct FileGroup {
-    #[serde(rename = "pathPrefix")]
-    pub path_prefix: String,
-    #[serde(rename = "languageCode")]
-    pub language_code: String,
-    #[serde(rename = "fileNames")]
-    pub file_names: Vec<String>,
+#[serde(rename_all = "camelCase")]
+pub struct FileDownloadInfo {
+    pub sub_system: String,
+    pub lang: String,
+    #[serde(rename = "internalUrl")]
+    pub internal_url: String,
+    pub url: String,
 }
 
 pub async fn upload_translation(config: &Config, translation: &TranslationFile) -> Result<()> {
@@ -234,19 +218,8 @@ pub async fn get_translation_config(config: &Config) -> Result<LongPollingRespon
     }
 
     tracing::info!(
-        "Got {} language groups with {} total files",
-        response
-            .data
-            .file_groups
-            .as_ref()
-            .map(|g| g.len())
-            .unwrap_or(0),
-        response
-            .data
-            .file_groups
-            .as_ref()
-            .map(|groups| groups.iter().map(|g| g.file_names.len()).sum::<usize>())
-            .unwrap_or(0)
+        "Got {} language files",
+        response.data.files.as_ref().map(|f| f.len()).unwrap_or(0)
     );
 
     Ok(response)
@@ -259,35 +232,14 @@ struct ErrorResponse {
     data: Option<String>,
 }
 
-pub async fn download_translation(
-    config: &Config,
-    file_group: &FileGroup,
-    file_name: &str,
-) -> Result<String> {
+pub async fn download_translation(config: &Config, download_url: &str) -> Result<String> {
     let client = Client::new();
-
-    // 检查 path_prefix 是否已包含完整的 URL
-    let url = if file_group.path_prefix.starts_with("http://")
-        || file_group.path_prefix.starts_with("https://")
-    {
-        format!(
-            "{}/{}",
-            file_group.path_prefix.trim_end_matches('/'),
-            file_name
-        )
-    } else {
-        format!(
-            "{}/{}/{}",
-            config.host.trim_end_matches('/'),
-            file_group.path_prefix.trim_matches('/'),
-            file_name
-        )
-    };
+    let url = download_url;
 
     tracing::info!("Downloading translation from: {}", url);
 
     let response = match client
-        .get(&url)
+        .get(url)
         .header("preview", &config.preview_mode)
         .send()
         .await
@@ -324,31 +276,8 @@ pub async fn download_translation(
         ));
     }
 
-    // 解析返回的 JSON
-    let json_value: serde_json::Value = serde_json::from_str(&text)?;
-
-    // 从配置文件的 include 模式中提取基础路径，并移除末尾的斜杠
-    let base_path = config
-        .include
-        .first()
-        .ok_or_else(|| anyhow!("No include patterns configured"))?
-        .replace("*.json", "")
-        .trim_end_matches('/')
-        .to_string();
-
-    // 拼接路径, config.path_prefix 和 base_path
-    let path = format!("{}/{}", config.path_prefix, base_path);
-
-    // 使用 path 作为匹配键
-    let lang_content = json_value
-        .as_object()
-        .ok_or_else(|| anyhow!("Response is not a JSON object"))?
-        .iter()
-        .find(|(key, _)| *key == &path)
-        .map(|(_, value)| value)
-        .ok_or_else(|| anyhow!("Language content not found in response"))?;
-
-    Ok(serde_json::to_string_pretty(lang_content)?)
+    // 直接返回原始文本内容
+    Ok(text)
 }
 
 #[cfg(test)]
@@ -371,7 +300,7 @@ mod tests {
                 "versionNo": "1.0.0",
                 "baseLanguage": "en-US",
                 "previewMode": "1",
-                "pathPrefix": "test",
+                "pathPrefix": "app",
                 "include": ["fixtures/*.json"],
                 "exclude": []
             }}"#,
@@ -464,24 +393,14 @@ mod tests {
                     "message": "success",
                     "data": {
                         "taskHash": "test-hash",
-                        "fileGroups": [
+                        "files": [
                             {
-                                "pathPrefix": "/test",
-                                "languageCode": "en-US",
-                                "fileNames": ["test.json"]
+                                "subSystem": "test-system",
+                                "lang": "en-US",
+                                "internalUrl": "http://internal.url/test.json",
+                                "url": "http://public.url/test.json"
                             }
-                        ],
-                        "changeTerms": null,
-                        "systemInfos": [
-                            {
-                                "id": 1,
-                                "name": "test"
-                            }
-                        ],
-                        "querySubSystemInfo": {
-                            "id": 1,
-                            "name": "test"
-                        }
+                        ]
                     }
                 }"#,
                 )
@@ -489,6 +408,12 @@ mod tests {
 
             let result = get_translation_config(&config).await;
             assert!(result.is_ok());
+            if let Ok(res) = result {
+                assert_eq!(res.data.files.as_ref().unwrap().len(), 1);
+                let file_info = &res.data.files.as_ref().unwrap()[0];
+                assert_eq!(file_info.lang, "en-US");
+                assert_eq!(file_info.url, "http://public.url/test.json");
+            }
 
             mock.assert();
             Ok(())
@@ -503,36 +428,33 @@ mod tests {
         rt.block_on(async {
             let (_temp_dir, config) = create_test_config(&server.url())?;
 
-            // 创建一个模拟的 FileGroup
-            let file_group = FileGroup {
-                path_prefix: "test".to_string(),
-                language_code: "en-US".to_string(),
-                file_names: vec!["test.json".to_string()],
-            };
-
-            // 模拟服务器响应，使用正确的路径结构
-            let mock_response = r#"{
-                "test/fixtures": {
-                    "test": {
-                        "key": "Test Value"
-                    }
-                }
+            // 模拟服务器响应，包含新的 pathPrefix 结构
+            let mock_response_content = r#"{
+                "test_key": "test_value"
             }"#;
+            let mock_response = format!(
+                r#"{{
+                "{}/languages": {}
+            }}"#,
+                config.path_prefix, mock_response_content
+            );
 
+            let download_url_path = "/download/en-US.json";
             let mock = server
-                .mock("GET", "/test/test.json")
+                .mock("GET", download_url_path)
                 .with_status(200)
                 .with_header("content-type", "application/json")
-                .with_body(mock_response)
+                .with_body(&mock_response)
                 .create();
 
-            let result = download_translation(&config, &file_group, "test.json").await;
+            let full_download_url = format!("{}{}", server.url(), download_url_path);
+
+            let result = download_translation(&config, &full_download_url).await;
             assert!(result.is_ok());
 
-            // 验证返回的内容是否正确
+            // 验证返回的内容是否是原始的、包含嵌套结构的 JSON 字符串
             if let Ok(content) = result {
-                let parsed: serde_json::Value = serde_json::from_str(&content)?;
-                assert_eq!(parsed["test"]["key"].as_str().unwrap(), "Test Value");
+                assert_eq!(content, mock_response);
             }
 
             mock.assert();

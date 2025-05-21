@@ -1,8 +1,8 @@
 {
-  "host": "https://backoffice.one.betaactstrade.com",
-  "subSystemName": "app_test",
+  "host": "https://1.mybaas.cc",
+  "subSystemName": "app",
   "productCode": "bos",
-  "versionNo": "1.0.0",
+  "versionNo": "1.1.0",
   "baseLanguage": "en-US",
   "previewMode": "1",
   "pathPrefix": "/app",

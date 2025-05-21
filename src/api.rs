@@ -9,8 +9,8 @@ use std::path::Path;
 struct ConfigRequest {
     #[serde(rename = "productCode")]
     product_code: String,
-    #[serde(rename = "subSystemName")]
-    sub_system_name: String,
+    #[serde(rename = "subSystemNames")]
+    sub_system_name: Vec<String>,
     #[serde(rename = "versionNo")]
     version_no: String,
 }
@@ -162,7 +162,7 @@ pub async fn get_translation_config(config: &Config) -> Result<LongPollingRespon
 
     let request_body = ConfigRequest {
         product_code: config.product_code.clone(),
-        sub_system_name: config.sub_system_name.clone(),
+        sub_system_name: vec![config.sub_system_name.clone()],
         version_no: config.version_no.clone(),
     };
 
